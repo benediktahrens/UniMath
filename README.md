@@ -20,6 +20,18 @@ available from http://brew.sh/, with the following command:
 $ brew install objective-caml
 ```
 
+Under Ubuntu, you may install ocaml (and ProofGeneral) with
+
+```bash
+$ sudo apt-get install ocaml ocaml-nox ocaml-native-compilers camlp4-extra proofgeneral proofgeneral-doc
+```
+
+Under Mac OS X, you may obtain ProofGeneral from http://proofgeneral.inf.ed.ac.uk/.
+It comes with installation instructions.  Your version of emacs determines
+which version of ProofGeneral you need, roughly, so some experimentation may be
+required; you may even need the current development version if your emacs is
+recent.
+
 To download UniMath and prepare for building it, issue the following
 shell commands.
 
@@ -55,7 +67,7 @@ The path to that directory from here, by default, is ./sub/coq/user-contrib/.
 
 The correct version of coq is built and used automatically by the command
 "make".  If you wish to bypass the building of coq and use your own version,
-then follow the instructions in the file build/Makefile-configuration.template.
+then follow the instructions in the file build/Makefile-configuration-template.
 In order to use the resulting coq programs from the command line or from
 ProofGeneral (outside of "make") then add the full path for the directory
 ./sub/coq/bin to your "PATH" environment variable, or set the emacs variable
@@ -70,3 +82,21 @@ The preferred way to interact with the coq code is with ProofGeneral, running
 in a modern version of emacs.  The file UniMath/.dir-locals.el will set the
 emacs variable "coq-prog-args" appropriately.  In particular, it will add the
 directory UniMath to the path, using the "-R" option.
+
+## Problems
+
+If you get error messages involving the command line option "-fno-defer-pop", you
+might be running Mac OS X 10.9 with an ocaml compiler installed by "brew".  In
+that case try
+
+```bash
+brew update
+brew upgrade objective-caml
+```
+
+If that doesn't work, try
+
+```bash
+brew remove objective-caml
+brew install objective-caml
+```
