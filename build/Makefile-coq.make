@@ -172,9 +172,7 @@ endif
 all: $(VOFILES) 
 
 quick:
-	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
-checkproofs:
-	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi-checking $(J) $(VOFILES:%.vo=%.vi)
+	$(MAKE) all VO=vi
 gallina: $(GFILES)
 
 html: $(GLOBFILES) $(VFILES)
