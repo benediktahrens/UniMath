@@ -4,10 +4,12 @@ Require Import Utf8.
 Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
+Require Import Foundations.Proof_of_Extensionality.funextfun.
 Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
+
 
 Require Import RezkCompletion.FOLDS.folds_precat.
 
@@ -97,10 +99,25 @@ Proof.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_comp.
-  - destruct C; simpl in *.
-    destruct t; simpl in *. 
+  - destruct C as [Cd CC]; simpl in *.
+    destruct Cd as [Ca Cb]; simpl in *. 
     unfold folds_id_comp_from_precat_data.
-
+    apply maponpaths.
+    destruct CC as [C1 C2]. simpl in *. 
+    destruct Cb as [Cb1 Cb2]. simpl in *. 
+    apply pathsdirprod.
+    +  apply funextsec.  intro t.
+       apply funextsec. intro f. unfold id_pred.  simpl. 
+       apply total2_paths_hProp.
+       { intro. apply isapropisaprop. } 
+       simpl.
+       apply weqtopaths. unfold identity. simpl. 
+       unfold id_func. simpl.
+                           
+                           nivalence.
+        clear C2. simpl. Check (Cb1 t f). 
+       simpl. clear C1. simpl.
+    clear CC.
 unfold compose.
 
 
