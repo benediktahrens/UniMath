@@ -48,14 +48,20 @@ Qed.
 Definition folds_ax_comp (C : folds_id_comp) :=
     dirprod (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
                 ishinh (total2 (λ h : a ⇒ c, comp f g h))) 
-            (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  comp f g h → comp f g k → h == k ).
+     (dirprod (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
+                  comp f g h → comp f g k → h == k )
+              (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d)
+                 (f_gh : a ⇒ d), 
+               comp f g fg → comp g h gh → 
+                  comp fg h fg_h → comp f gh f_gh → fg_h == f_gh )).
 
 Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
 Proof.
  repeat (apply isapropdirprod).
  - do 5 (apply impred; intro). apply isapropishinh.
  - repeat (apply impred; intro). apply (pr2 (_ ⇒ _)) .  
+ - repeat (apply impred; intro). apply (pr2 (_ ⇒ _ )).
 Qed.
 
 
@@ -76,7 +82,7 @@ Proof.
   { apply (pr1 (pr2 Cid) _ _ _ _  ).  assumption. }
   assert (H2 : comp i i' i').
   { apply (pr2 (pr2 Cid) _ _ _ _ ) . assumption. }
-  apply (pr2 Ccomp _ _ _ _ _ _ _ H1 H2).
+  apply (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
 Qed.
 
 Lemma id_contr : ∀ a : C, iscontr (total2 (λ f : a ⇒ a, id f)).  
@@ -94,6 +100,13 @@ Proof.
     apply id_unique; assumption.
 Defined.
 
+Definition id_func (a : C) : a ⇒ a := pr1 (pr1 (id_contr a)).
+
+Lemma id_func_id (a : C) : id (id_func a).
+Proof.
+  apply (pr2 (pr1 (id_contr a))).  
+Defined.
+
 Lemma comp_contr : ∀ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), 
     iscontr (total2 (λ h, comp f g h)).
 Proof.
@@ -106,8 +119,50 @@ Proof.
   apply total2_paths_hProp.
   - intro; apply pr2.
   - destruct t; destruct t'; simpl in *.
-    apply (pr2 (pr2 (pr2 C)) _ _ _ f g ); assumption.
+    apply (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); assumption.
 Defined.
+
+Definition comp_func {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : a ⇒ c :=
+     pr1 (pr1 (comp_contr a b c f g)).
+
+Local Notation "f ∘ g" := (comp_func f g) (at level 30).
+
+Lemma comp_func_comp {a b c : C} (f : a ⇒ b) (g : b ⇒ c) : 
+   comp f g (f ∘ g).
+Proof.
+  apply (pr2 (pr1 (comp_contr a b c f g))).
+Defined.
+
+Lemma comp_id_l (a b : C) (f : a ⇒ b) : f ∘ (id_func b) == f.
+Proof.
+  assert (H : comp f (id_func b) f).  
+  { apply (pr1 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
+  assert (H' : comp f (id_func b) (comp_func f (id_func b))).  
+  { apply comp_func_comp. }
+  set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
+  apply (H2 _ _ _ _ _ _ _ H' H).
+Defined.
+
+Lemma comp_id_r (a b : C) (f : a ⇒ b) : (id_func a) ∘ f == f.
+Proof.
+  assert (H : comp (id_func a) f f).  
+  { apply (pr2 (pr2 (pr1 (pr2 C)))). apply id_func_id. }
+  assert (H' : comp (id_func a) f (comp_func (id_func a) f)).  
+  { apply comp_func_comp. }
+  set (H2 := pr1 (pr2 (pr2 (pr2 C)))).
+  apply (H2 _ _ _ _ _ _ _ H' H).
+Defined.
+
+Lemma comp_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
+    (f ∘ g) ∘ h == f ∘ (g ∘ h).
+Proof.
+  apply (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
+  - apply comp_func_comp.
+  - apply comp_func_comp.
+  - apply comp_func_comp.
+  - apply comp_func_comp.
+Defined.
+ 
 
 End some_lemmas_about_folds_precats.
 
