@@ -54,7 +54,7 @@ Definition folds_ax_comp (C : folds_id_comp) :=
                   (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d)
                  (f_gh : a ⇒ d), 
                comp f g fg → comp g h gh → 
-                  comp fg h fg_h → comp f gh f_gh → fg_h == f_gh )).
+                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)).
 
 Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
 Proof.
@@ -154,7 +154,7 @@ Proof.
 Defined.
 
 Lemma comp_assoc (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d) :
-    (f ∘ g) ∘ h == f ∘ (g ∘ h).
+    f ∘ (g ∘ h) == (f ∘ g) ∘ h.
 Proof.
   apply (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
   - apply comp_func_comp.

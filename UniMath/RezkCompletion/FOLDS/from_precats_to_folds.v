@@ -59,8 +59,9 @@ Proof.
    transitivity (compose f g); auto.
  - simpl. intros a b c d f g h fg gh fg_h f_gh H1 H2 H3 H4.
    rewrite <- H4, <- H3, <- H2, <- H1. 
-   apply pathsinv0; apply assoc.
-Qed.
+   apply assoc.
+Defined.
+
 End from_precats_to_folds.
 
 Section from_folds_to_precats.
@@ -70,6 +71,38 @@ Variable C : folds_precat.
 Definition precat_from_folds_data : precategory_data :=
   tpair (λ C : precategory_ob_mor, precategory_id_comp C)
     (pr1 (pr1 C)) (dirprodpair (id_func C)(@comp_func C)).
+
+Lemma is_precategory_precat_from_folds_data : 
+   is_precategory precat_from_folds_data.
+Proof.
+  repeat split.
+  - apply comp_id_r.  
+  - apply comp_id_l. 
+  - apply comp_assoc. 
+Qed.
+
+Definition precat_from_folds : precategory := 
+  tpair _ _ is_precategory_precat_from_folds_data.
+
+End from_folds_to_precats.
+
+
+Section from_folds_to_precats_and_back.
+
+Variable C : folds_precat.
+
+Lemma bla : folds_precat_from_precat (precat_from_folds C) == C.
+Proof.
+  apply total2_paths_hProp.
+  - intro a; apply isapropdirprod.
+    + apply isaprop_folds_ax_id.
+    + apply isaprop_folds_ax_comp.
+  - destruct C; simpl in *.
+    destruct t; simpl in *. 
+    unfold folds_id_comp_from_precat_data.
+
+unfold compose.
+
 
  exists (pr1 (pr1 C)).
  split.
