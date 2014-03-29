@@ -10,7 +10,7 @@ Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 Require Import RezkCompletion.precategories.
 
-
+Require Import RezkCompletion.FOLDS.aux_lemmas.
 Require Import RezkCompletion.FOLDS.folds_precat.
 
 Section from_precats_to_folds.
@@ -21,16 +21,26 @@ Section data.
 
 Variable C : precategory_data.
 
-Definition id_pred (a : C) : a ⇒ a → hProp :=
+Definition id_pred {a : C} : a ⇒ a → hProp :=
    λ f, hProppair (f == identity _ ) (pr2 (a ⇒ a) _ _ ) .
 
-Definition comp_pred (a b c : C) : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
+Lemma id_pred_id (a : C) : id_pred (identity a).
+Proof.
+  apply idpath.
+Qed.
+
+Definition comp_pred {a b c : C} : a ⇒ b → b ⇒ c → a ⇒ c → hProp :=
   λ f g fg, hProppair (compose f g == fg) (pr2 (_ ⇒ _ ) _ _ ).
+
+Lemma comp_pred_comp (a b c : C) (f : a ⇒ b) (g : b ⇒ c) : comp_pred f g (compose f g).
+Proof.
+  apply idpath.  
+Defined.
 
 Definition folds_id_comp_from_precat_data : folds_id_comp :=
   tpair (λ C : folds_ob_mor, dirprod (∀ a : C, a ⇒ a → hProp)
             (∀ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp))  
-        (pr1 C) (dirprodpair id_pred comp_pred).
+        (pr1 C) (dirprodpair (@id_pred) (@comp_pred)).
 
 End data.
 
@@ -99,19 +109,55 @@ Proof.
   - intro a; apply isapropdirprod.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_comp.
-  - destruct C as [Cd CC]; simpl in *.
+  - set (Hid := id_contr C).
+    destruct C as [Cd CC]; simpl in *.
     destruct Cd as [Ca Cb]; simpl in *. 
     unfold folds_id_comp_from_precat_data.
     apply maponpaths.
     destruct CC as [C1 C2]. simpl in *. 
-    destruct Cb as [Cb1 Cb2]. simpl in *. 
+    destruct Cb as [Cid Ccomp]. simpl in *. 
     apply pathsdirprod.
-    +  apply funextsec.  intro t.
+    +  apply funextsec.  intro a.
        apply funextsec. intro f. unfold id_pred.  simpl. 
        apply total2_paths_hProp.
        { intro. apply isapropisaprop. } 
        simpl.
-       apply weqtopaths. unfold identity. simpl. 
+       apply weqtopaths. 
+       apply weqimplimpl.
+       * intro H. rewrite H. 
+         set (Hid' := pr1 (Hid a)).
+         apply (pr2 (Hid')).
+       * intro H. unfold precategory_morphisms in f.
+         set (H2 := pr2 (Hid a)). simpl in H2.
+         apply (path_to_ctr). assumption.
+       * apply (pr2 (precategory_morphisms _ _ )).
+       * apply (pr2 (Cid a f)).
+   + apply funextsec; intro a.
+     apply funextsec; intro b.
+     apply funextsec; intro c.
+     apply funextsec; intro f.
+     apply funextsec; intro g.
+
+
+
+
+
+
+
+
+         set (H':= tpair (λ f0 : folds_morphisms a a , id f0) f H).
+
+
+         unfold identity in Hid. simpl in Hid.
+              apply Hid.
+unfold identity. 
+                  simpl. unfold id_func. simpl. unfold id_contr.
+ simpl.
+
+unfold Cid. apply id_func_id. unfold identity. 
+         destruct C1 as [Cr Cs]. simpl in *. tauto.
+         unfold Cb1. simpl.
+       unfold identity. simpl. 
        unfold id_func. simpl.
                            
                            nivalence.
