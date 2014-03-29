@@ -49,6 +49,9 @@ UniMath/RezkCompletion/limits/aux_lemmas_HoTT.v
 UniMath/RezkCompletion/precategories.v
 UniMath/RezkCompletion/auxiliary_lemmas_HoTT.v
 UniMath/RezkCompletion/pathnotations.v
+UniMath/RezkCompletion/FOLDS/folds_precat.v
+UniMath/RezkCompletion/FOLDS/aux_lemmas.v
+UniMath/RezkCompletion/
 UniMath/Foundations/hlevel2/hq.v
 UniMath/Foundations/hlevel2/hz.v
 UniMath/Foundations/hlevel2/finitesets.v

@@ -110,6 +110,7 @@ Proof.
     + apply isaprop_folds_ax_id.
     + apply isaprop_folds_ax_comp.
   - set (Hid := id_contr C).
+    set (Hcomp := comp_contr C).
     destruct C as [Cd CC]; simpl in *.
     destruct Cd as [Ca Cb]; simpl in *. 
     unfold folds_id_comp_from_precat_data.
@@ -137,11 +138,18 @@ Proof.
      apply funextsec; intro c.
      apply funextsec; intro f.
      apply funextsec; intro g.
-
-
-
-
-
+     apply funextsec; intro fg.
+     clear Hid.
+     apply total2_paths_hProp.
+     { intro; apply isapropisaprop. } 
+     apply weqtopaths. apply weqimplimpl.
+       * intro H. simpl in *. rewrite <- H.
+         apply (pr2 (pr1 (Hcomp a b c f g))).
+       * simpl. intro H. apply pathsinv0. apply path_to_ctr.
+           assumption.
+       * simpl in *. apply (pr2 (precategory_morphisms _ _ )).
+       * apply (pr2 (Ccomp _ _ _ _ _ _ )).
+Qed.
 
 
 
