@@ -8,6 +8,9 @@ Require Import RezkCompletion.pathnotations.
 Import RezkCompletion.pathnotations.PathNotations.
 Require Import RezkCompletion.auxiliary_lemmas_HoTT.
 
+(** * The definition of a FOLDS precategory *)
+
+(** ** Objects and a dependent type of morphisms *)
 
 Definition folds_ob_mor := total2 (λ a : UU, a → a → hSet).
 Definition folds_ob_mor_pair (ob : UU)(mor : ob → ob → hSet) :
@@ -18,6 +21,8 @@ Coercion ob : folds_ob_mor >-> Sortclass.
 
 Definition folds_morphisms {C : folds_ob_mor} : C → C → hSet := pr2 C.
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
+
+(** ** Identity and composition, given through predicates *)
 
 Definition folds_id_comp := total2 (λ C : folds_ob_mor,
     dirprod (∀ a : C, a ⇒ a → hProp) 
@@ -30,10 +35,10 @@ Definition id {C : folds_id_comp} : ∀ {a : C}, a ⇒ a → hProp := pr1 (pr2 C
 Definition comp {C : folds_id_comp} :
       ∀ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp := pr2 (pr2 C).
 
-(* the complete list of axioms will hurt *)
+(** **  The axioms for identity *)
 
 Definition folds_ax_id (C : folds_id_comp) := 
-    dirprod (∀ a : C, ishinh (total2 (λ f : a ⇒ a, id f)))  (* there is an identity *)
+    dirprod (∀ a : C, ishinh (total2 (λ f : a ⇒ a, id f)))  (* there is an id *)
      (dirprod (∀ (a b : C) (f : a ⇒ b)(i : b ⇒ b), id i → comp f i f) (* id is post neutral *)      
               (∀ (a b : C) (f : a ⇒ b)(i : a ⇒ a), id i → comp i f f)). (* id is pre neutral *)
 
@@ -47,14 +52,13 @@ Qed.
 
 Definition folds_ax_comp (C : folds_id_comp) :=
     dirprod (∀ {a b c : C} (f : a ⇒ b) (g : b ⇒ c), 
-                ishinh (total2 (λ h : a ⇒ c, comp f g h))) 
+                ishinh (total2 (λ h : a ⇒ c, comp f g h))) (* there is a composite *)
      (dirprod (∀ {a b c : C} {f : a ⇒ b} {g : b ⇒ c} {h k : a ⇒ c},
-                  comp f g h → comp f g k → h == k )
+                  comp f g h → comp f g k → h == k )       (* composite is unique *)
               (∀ {a b c d : C} (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
-                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d)
-                 (f_gh : a ⇒ d), 
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d), 
                comp f g fg → comp g h gh → 
-                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)).
+                  comp fg h fg_h → comp f gh f_gh → f_gh == fg_h)). (* composition is assoc *)
 
 Lemma isaprop_folds_ax_comp C : isaprop (folds_ax_comp C).
 Proof.
@@ -69,6 +73,13 @@ Definition folds_precat := total2 (λ C : folds_id_comp,
     dirprod (folds_ax_id C) (folds_ax_comp C)).
 Definition folds_id_comp_from_folds_precat (C : folds_precat) : folds_id_comp := pr1 C.
 Coercion folds_id_comp_from_folds_precat : folds_precat >-> folds_id_comp.
+
+(** * Some lemmas about FOLDS precategories *)
+
+(** used later to go to precategories; we define
+  - identity as a function
+  - composition as a function
+*)
 
 Section some_lemmas_about_folds_precats.
 

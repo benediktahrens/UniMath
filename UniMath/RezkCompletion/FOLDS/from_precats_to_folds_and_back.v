@@ -13,6 +13,9 @@ Require Import RezkCompletion.precategories.
 Require Import RezkCompletion.FOLDS.aux_lemmas.
 Require Import RezkCompletion.FOLDS.folds_precat.
 
+
+(** * From precategories to FOLDS precategories *)
+
 Section from_precats_to_folds.
 
 Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
@@ -76,6 +79,8 @@ Defined.
 
 End from_precats_to_folds.
 
+(** * From FOLDS precategories to precategories *)
+
 Section from_folds_to_precats.
 
 Variable C : folds_precat.
@@ -98,6 +103,7 @@ Definition precat_from_folds : precategory :=
 
 End from_folds_to_precats.
 
+(** * From FOLDS precats to precats to FOLDS precats *)
 
 Lemma folds_precat_from_precat_precat_from_folds (C : folds_precat) : 
     folds_precat_from_precat (precat_from_folds C) == C.
@@ -148,6 +154,7 @@ Proof.
        * apply (pr2 (Ccomp _ _ _ _ _ _ )).
 Qed.
 
+(** * From precats to FOLDS precats to precats *)
 
 Lemma precat_from_folds_folds_precat_from_precat (C : precategory) : 
      precat_from_folds (folds_precat_from_precat C) == C.
