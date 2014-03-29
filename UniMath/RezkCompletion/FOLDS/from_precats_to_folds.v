@@ -151,9 +151,45 @@ Proof.
        * apply (pr2 (Ccomp _ _ _ _ _ _ )).
 Qed.
 
+End from_folds_to_precats_and_back.
 
 
-         set (H':= tpair (λ f0 : folds_morphisms a a , id f0) f H).
+Section from_precats_to_folds_and_back.
+
+Variable C : precategory.
+
+Lemma bla2 : precat_from_folds (folds_precat_from_precat C) == C.
+Proof.
+  apply total2_paths_hProp.
+  { intro; apply isaprop_is_precategory. }
+  destruct C as [Cdata Cax]; simpl in *.
+  destruct Cdata as [Cobmor Cidcomp]; simpl in *.
+  unfold precat_from_folds_data; apply maponpaths.
+  destruct Cidcomp as [Cid Ccomp]; simpl in *.
+  apply pathsdirprod.
+  - apply funextsec; intro a.
+    apply pathsinv0.
+    apply path_to_ctr.
+    apply idpath.
+  - apply funextsec; intro a.
+    apply funextsec; intro b.
+    apply funextsec; intro c.
+    apply funextsec; intro f.
+    apply funextsec; intro g.
+    apply pathsinv0.
+    apply path_to_ctr.
+    apply idpath.
+Qed.
+
+End from_precats_to_folds_and_back.
+
+    unfold id_func.
+    simpl in *.
+  
+  
+  
+  
+  set (H':= tpair (λ f0 : folds_morphisms a a , id f0) f H).
 
 
          unfold identity in Hid. simpl in Hid.
