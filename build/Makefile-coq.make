@@ -102,6 +102,7 @@ VFILES:=UniMath/Foundations/Generalities/uuu.v\
   UniMath/Foundations/hlevel2/finitesets.v\
   UniMath/Foundations/hlevel2/hz.v\
   UniMath/Foundations/hlevel2/hq.v\
+  UniMath/RezkCompletion/FOLDS/folds_precat.v\
   UniMath/RezkCompletion/pathnotations.v\
   UniMath/RezkCompletion/auxiliary_lemmas_HoTT.v\
   UniMath/RezkCompletion/precategories.v\
@@ -169,10 +170,12 @@ endif
 #                                     #
 #######################################
 
-all: $(VOFILES) 
+all: $(VOFILES) ./UniMath/RezkCompletion/
 
 quick:
-	$(MAKE) all VO=vi
+	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
+checkproofs:
+	$(COQC) $(COQDEBUG) $(COQFLAGS) -schedule-vi-checking $(J) $(VOFILES:%.vo=%.vi)
 gallina: $(GFILES)
 
 html: $(GLOBFILES) $(VFILES)
@@ -203,7 +206,16 @@ beautify: $(VFILES:=.beautified)
 	@echo 'Do not do "make clean" until you are sure that everything went well!'
 	@echo 'If there were a problem, execute "for file in $$(find . -name \*.v.old -print); do mv $${file} $${file%.old}; done" in your shell/'
 
-.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate
+.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate ./UniMath/RezkCompletion/
+
+###################
+#                 #
+# Subdirectories. #
+#                 #
+###################
+
+./UniMath/RezkCompletion/:
+	+cd "./UniMath/RezkCompletion/" && $(MAKE) all
 
 ####################
 #                  #
@@ -225,6 +237,7 @@ install:
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/UniMath/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/UniMath/$$i; \
 	done
+	+cd ./UniMath/RezkCompletion/ && $(MAKE) DSTROOT="$(DSTROOT)" INSTALLDEFAULTROOT="$(INSTALLDEFAULTROOT)/./UniMath/RezkCompletion/" install
 
 install-doc:
 	install -d "$(DSTROOT)"$(COQDOCINSTALL)/UniMath/html
@@ -247,9 +260,11 @@ clean:
 	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
+	+cd ./UniMath/RezkCompletion/ && $(MAKE) clean
 
 archclean:
 	rm -f *.cmx *.o
+	+cd ./UniMath/RezkCompletion/ && $(MAKE) archclean
 
 printenv:
 	@"$(COQBIN)coqtop" -config
@@ -264,6 +279,7 @@ Makefile-coq.make.tmp: .package-files
 	mv -f $@ $@.bak
 	"$(COQBIN)coq_makefile" -f $< -o $@
 
+	+cd ./UniMath/RezkCompletion/ && $(MAKE) Makefile
 
 ###################
 #                 #
