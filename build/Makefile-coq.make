@@ -102,6 +102,7 @@ VFILES:=UniMath/Foundations/Generalities/uuu.v\
   UniMath/Foundations/hlevel2/finitesets.v\
   UniMath/Foundations/hlevel2/hz.v\
   UniMath/Foundations/hlevel2/hq.v\
+  UniMath/RezkCompletion/FOLDS/aux_lemmas.v\
   UniMath/RezkCompletion/FOLDS/folds_precat.v\
   UniMath/RezkCompletion/pathnotations.v\
   UniMath/RezkCompletion/auxiliary_lemmas_HoTT.v\

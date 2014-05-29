@@ -18,4 +18,5 @@ precategories.v
 auxiliary_lemmas_HoTT.v
 pathnotations.v
 FOLDS/folds_precat.v
+FOLDS/aux_lemmas.v
 
