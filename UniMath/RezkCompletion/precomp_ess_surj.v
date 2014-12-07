@@ -18,7 +18,6 @@ Contents : Precomposition with a fully faithful and
 ************************************************************)
 
 
-Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 

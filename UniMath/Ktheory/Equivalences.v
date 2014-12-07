@@ -1,6 +1,6 @@
 (** * Equivalences *)
 
-Require Import uu0.
+Require Import uu0d.
 Require Import Utilities funextfun.
 
 Section A.

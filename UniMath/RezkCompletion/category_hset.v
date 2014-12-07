@@ -21,7 +21,6 @@ Contents :
 
 
 
-Require Import Foundations.Generalities.uu0.
 Require Import Foundations.hlevel1.hProp.
 Require Import Foundations.hlevel2.hSet.
 Require Import Foundations.Proof_of_Extensionality.funextfun. 
