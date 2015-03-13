@@ -67,9 +67,44 @@ Proof.
 Qed.
 
 Definition Monad (C : precategory) : UU := Σ T : Monad_data C, Monad_laws T.
-
 Coercion Monad_data_from_Monad (C : precategory) (T : Monad C) : Monad_data C := pr1 T.
 
+Lemma ηT_μ {C : precategory} (T : Monad C) : ∀ c : C, η T (T c) ;; μ T c = identity (T c).
+Proof.
+  exact (pr1 (pr1 (pr2 T))).
+Qed.
+
+Lemma Tη_μ {C : precategory} (T : Monad C) : ∀ c : C, #T (η T c) ;; μ T c = identity (T c).
+Proof.
+  exact (pr2 (pr1 (pr2 T))).
+Qed.
+
+Lemma Tμ_μ_μT_μ {C : precategory} (T : Monad C) : 
+  ∀ c : C, #T (μ T c) ;; μ T c = μ T (T c) ;; μ T c.
+Proof.
+  exact (pr2 (pr2 T)).
+Qed.
+
+Lemma η_unique (C : precategory) (T : Monad C) (η' : functor_identity C ⟶ T) :
+  (∀ a : C, η' (T a) ;; μ T a = identity (T a)) → ∀ a : C, η' a = η T a.
+Proof.
+  intros H a.
+  pathvia (η' a ;; identity _ ).
+  - apply pathsinv0, id_right. 
+  - set (H':=nat_trans_ax η'); simpl in *.
+    rewrite <- (functor_id). 
+    rewrite <- H'. rewrite functor_id.
+  
+    rewrite <- ηT_μ. rewrite <- 
+
+Definition Monad_id_equiv (C : precategory) (hs : has_homsets C) (T T' : Monad C):
+  T = T' ≃ pr1 (pr1 T) = pr1 (pr1 T').
+Proof.
+  eapply weqcomp.
+  - apply total2_paths_isaprop_equiv.
+    intro a. apply isaprop_Monad_laws. assumption.
+  - eapply weqcomp. 
+    + apply total2_paths_isaprop_equiv.
 
 Definition Monad_Mor_laws {C : precategory} {T T' : Monad_data C} (α : T ⟶ T') 
   : UU := 
