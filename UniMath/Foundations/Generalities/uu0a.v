@@ -1835,7 +1835,7 @@ Proof.
   assert ( e1 : pr1 q1 = xp ) . set  ( eint := maponpaths ( sumofmaps pr1 pr1 ) e ) .
   simpl in eint. exact ( eint @ ( hint xp ) ) . 
 
-  assert ( e2 : tpair P x ( int1 q1 ) = pr1 q1 ) .  unfold int1 . induction ( pr2 q1 ) .
+  assert ( e2 : tpair P x ( int1 q1 ) = pr1 q1 ) .  unfold int1 . destruct ( pr2 q1 ) .
   unfold transportf .  simpl . unfold idfun . apply pathsinv0 . apply tppr . 
 
   exact ( e2 @ e1 ) .

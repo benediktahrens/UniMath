@@ -21,9 +21,15 @@ Notation UUU := Set .
 [ Inductive Empty_set : Set := . ]
 
 *)
-
 Notation empty := Empty_set. 
 Notation empty_rect := Empty_set_rect. 
+
+(* Primitive projections give us eta for sigma types,
+   which are defined below as a record type
+ *)
+
+Set Primitive Projections.
+
 
 (** Identity Types. Identity types are introduced in Coq.Init.Datatypes by the lines : 
 
@@ -77,7 +83,7 @@ construction would not apply to new instances of "Record" due to the "generativi
 definitions in Coq. One could use "Inductive" instead of "Record" here but using "Record" which is 
 equivalent to "Structure" allows us later to use the mechanism of canonical structures with total2. *)
 
-
+(*
 Inductive total2 { T: Type } ( P: T -> Type ) := tpair : forall ( t : T ) ( p : P t ) , total2 P . 
 Arguments tpair {T} _ _ _.
 
@@ -90,7 +96,16 @@ Definition pr2 ( T : Type ) ( P : T -> Type ) ( t : total2 P ) : P ( pr1 t ) .
 Proof . intros .  induction t as [ t p ] . exact p . Defined. 
 
 Arguments pr2 {_ _} _.
+ *)
 
+Record total2 {T : Type} (P : T -> Type ) := tpair {
+  pr1 : T ;
+  pr2 : P (pr1)
+}.
+
+Arguments pr1 {_ _} _.
+Arguments pr2 {_ _} _.
+Arguments tpair {_} _ _ _.
 
 
 (*
