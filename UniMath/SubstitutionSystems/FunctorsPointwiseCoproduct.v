@@ -66,9 +66,11 @@ Proof.
     intros d cc.
     refine (tpair _ _ _ ).
     + exists (CoproductArrow _ CP (coconeIn cc true) (coconeIn cc false)).
-      intro v; induction v; simpl.
-      * apply CoproductIn1Commutes.
-      * apply CoproductIn2Commutes.
+      abstract (intro v; induction v; simpl;
+                [
+                  apply CoproductIn1Commutes
+                |
+                  apply CoproductIn2Commutes]).
     + abstract (intro t;
                  apply subtypeEquality;
                  [
