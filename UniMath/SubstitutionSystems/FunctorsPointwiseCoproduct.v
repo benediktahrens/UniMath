@@ -30,6 +30,7 @@ Require Import UniMath.Foundations.Sets.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.functor_categories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.colimits.colimits.
 Require Import UniMath.CategoryTheory.limits.coproducts.
 Require Import UniMath.SubstitutionSystems.Auxiliary.
 
@@ -47,10 +48,47 @@ Variable C D : precategory.
 Variable HD : Coproducts D.
 Variable hsD : has_homsets D.
 
+Definition Coproducts_functor_precat : Coproducts [C, D, hsD].
+Proof.
+  intros F G.
+  refine (ColimFunctorCocone _ _ _ _ _ _ ).
+  intro a.
+  simpl in F, G.
+  set (CP := HD (F a) (G a)).
+  refine (mk_ColimCocone _ _ _ _ ).
+  - apply (colim CP).
+  - refine (mk_cocone _ _ ).
+    + intro v; induction v; simpl.
+      * apply (CoproductIn1 _ CP).
+      * apply (CoproductIn2 _ CP).
+    + abstract (intros u v e; induction e).
+  - simpl.
+    intros d cc.
+    refine (tpair _ _ _ ).
+    + exists (CoproductArrow _ CP (coconeIn cc true) (coconeIn cc false)).
+      intro v; induction v; simpl.
+      * apply CoproductIn1Commutes.
+      * apply CoproductIn2Commutes.
+    + abstract (intro t;
+                 apply subtypeEquality;
+                 [
+                 intro; simpl;
+                 apply impred; intro; apply hsD
+                 |
+                 destruct t; simpl;
+                 apply CoproductArrowUnique ;
+                   [ apply (p true) | apply (p false)]
+                 ]).
+Defined.
+
+
 Section coproduct_functor.
 
 Variables F G : functor C D.
 
+Definition coproduct_functor : functor C D := CoproductObject _ (Coproducts_functor_precat F G).
+
+(*
 Local Notation "c ⊗ d" := (CoproductObject _ (HD c d))(at level 45).
 
 Definition coproduct_functor_ob (c : C) : D := F c ⊗ G c.
@@ -271,13 +309,16 @@ Proof.
      apply coproduct_nat_trans_univ_prop.
 Defined.
 
+*)
 End coproduct_functor.
 
 
+(*
 Definition Coproducts_functor_precat : Coproducts [C, D, hsD].
 Proof.
   intros F G.
   apply functor_precat_coproduct_cocone.
 Defined.
+*)
 
 End def_functor_pointwise_coprod.

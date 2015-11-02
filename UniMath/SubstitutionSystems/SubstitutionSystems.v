@@ -23,6 +23,8 @@ Contents :
 
 ************************************************************)
 
+Unset Kernel Term Sharing.
+
 
 Require Import UniMath.Foundations.Basics.All.
 Require Import UniMath.Foundations.Propositions.
@@ -69,7 +71,7 @@ Let θ_strength2_int := Sig_strength_law2 _ _ H.
 
 Let Id_H
 : functor EndC EndC
-  := coproduct_functor _ _ CPEndC
+  := coproduct_functor _ _ CPEndC hsEndC
                        (constant_functor _ _ (functor_identity _ : EndC))
                        H.
 
@@ -147,7 +149,7 @@ Proof.
     apply nat_trans_eq; try (exact hs).
     intro c.
     simpl.
-    unfold coproduct_nat_trans_in1_data.
+(*    unfold coproduct_nat_trans_in1_data. *)
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (fun m =>  CoproductIn1 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
@@ -168,7 +170,7 @@ Proof.
     apply nat_trans_eq; try (exact hs).
     intro c.
     simpl.
-    unfold coproduct_nat_trans_in2_data.
+(*    unfold coproduct_nat_trans_in2_data. *)
     assert (Hyp_inst := nat_trans_eq_pointwise Hyp c); clear Hyp.
     apply (maponpaths (fun m =>  CoproductIn2 C (CP _ _);; m)) in Hyp_inst.
     match goal with |[ H1 : _  = ?f |- _ = _   ] =>
@@ -208,9 +210,10 @@ Proof.
     apply CoproductIn1Commutes_right_in_ctx_dir.
     rewrite id_left.
     apply CoproductIn1Commutes_right_dir.
-    simpl. simpl in Hyp1_inst.
-    rewrite Hyp1_inst.
     simpl.
+    apply pathsinv0. eapply pathscomp0. apply Hyp1_inst.
+    clear Hyp1_inst. apply pathsinv0.
+(*    simpl. *)
     apply assoc.
   + clear Hyp1.
     assert (Hyp2_inst := nat_trans_eq_pointwise Hyp2 c); clear Hyp2.

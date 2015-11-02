@@ -34,7 +34,7 @@ refine (tpair _ _ _ ).
   induction v; simpl.
   - exact ac.
   - exact bc.
-+ intros u v e; induction e.
++ abstract (intros u v e; induction e).
 Defined.
 
 Section coproduct_def.
@@ -56,10 +56,10 @@ Proof.
   set (H':= H c (coconeIn cc true) (coconeIn cc false)).
   refine (tpair _ _ _ ).
   - exists (pr1 (pr1 H')).
-    set (T := pr2 (pr1 H')). simpl in T.
-    abstract (intro u; induction u;
+    abstract (set (T := pr2 (pr1 H')); simpl in T;
+              intro u; induction u;
               [ apply (pr1 T) | apply (pr2 T)]).
-  - intros. abstract (intros;
+  - abstract (intros;
               apply subtypeEquality;
               [ intro; apply impred; intro; apply hsC
               | apply path_to_ctr; split; [ apply (pr2 t true) | apply (pr2 t false)] ]).
@@ -92,12 +92,7 @@ Definition CoproductIn2 {a b : C} (CC : CoproductCocone a b) : b ⇒ CoproductOb
 Definition CoproductArrow {a b : C} (CC : CoproductCocone a b) {c : C} (f : a ⇒ c) (g : b ⇒ c) :
       CoproductObject CC ⇒ c.
 Proof.
-  apply (colimArrow CC).
-  refine (mk_cocone _ _ ).
-  + intro v. induction v.
-    - apply f.
-    - apply g.
-  + simpl. intros ? ? e; induction e.
+  apply (colimArrow CC _ (CopCocone f g)).
 Defined.
 
 Lemma CoproductIn1Commutes (a b : C) (CC : CoproductCocone a b):
@@ -106,6 +101,7 @@ Proof.
   intros c f g.
   unfold CoproductIn1.
   set (H:=colimArrowCommutes CC  _ (CopCocone f g) true).
+  simpl in H.
   apply H.
 Qed.
 
@@ -214,7 +210,7 @@ Proof.
 (*  apply pathsinv0. *)
   apply colim_endo_is_identity.
   intro u; induction u; simpl; assumption.
-Defined.
+Qed.
 
 
 Lemma is_iso_from_Coproduct_to_Coproduct (CC CC' : CoproductCocone a b)
@@ -251,7 +247,7 @@ Proof.
   rewrite <- idtoiso_postcompose.
   rewrite idtoiso_isotoid.
   apply idpath.
-Defined.
+Qed.
 
 
 (* should be an instance of a lemma about colimits *)

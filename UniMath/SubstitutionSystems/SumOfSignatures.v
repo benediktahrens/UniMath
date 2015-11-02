@@ -75,14 +75,14 @@ Variable S22 : θ_Strength2 θ2.
 
 (** * Definition of the data of the sum of two signatures *)
 
-Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC H1 H2.
+Definition H : functor [C, C, hs] [C, C, hs] := coproduct_functor _ _ CCC (functor_category_has_homsets _ _ hs) H1 H2.
 
 
 Local Definition bla1 (X : [C, C] hs) (Z : precategory_Ptd C hs) :
    ∀ c : C,
     (functor_composite_data (pr1 Z)
-     (coproduct_functor_data C C CC (H1 X) (H2 X))) c
-   ⇒ (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+     (coproduct_functor C C CC hs (H1 X) (H2 X))) c
+   ⇒ (coproduct_functor C C CC hs (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X))) c.
 Proof.
   intro c.
@@ -94,13 +94,13 @@ Defined.
 Local Lemma bar (X : [C, C] hs) (Z : precategory_Ptd C hs):
    is_nat_trans
      (functor_composite_data (pr1 Z)
-        (coproduct_functor_data C C CC (H1 X) (H2 X)))
-     (coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+        (coproduct_functor C C CC hs (H1 X) (H2 X)))
+     (coproduct_functor C C CC hs (H1 (functor_composite (pr1 Z) X))
         (H2 (functor_composite (pr1 Z) X))) (bla1 X Z).
 Proof.
   intros x x' f; simpl.
   unfold bla1; simpl.
-  unfold coproduct_functor_mor.
+(*  unfold coproduct_functor_mor. *)
   eapply pathscomp0; [ apply CoproductOfArrows_comp | ].
   eapply pathscomp0; [ | eapply pathsinv0; apply CoproductOfArrows_comp].
   apply CoproductOfArrows_eq.
@@ -110,8 +110,8 @@ Qed.
 
 Local Definition bla (X : [C, C] hs) (Z : precategory_Ptd C hs) :
    functor_composite_data (pr1 Z)
-     (coproduct_functor_data C C CC (H1 X) (H2 X))
-   ⟶ coproduct_functor_data C C CC (H1 (functor_composite (pr1 Z) X))
+     (coproduct_functor C C CC hs (H1 X) (H2 X))
+   ⟶ coproduct_functor C C CC hs (H1 (functor_composite (pr1 Z) X))
        (H2 (functor_composite (pr1 Z) X)).
 Proof.
   exists (bla1 X Z).
@@ -123,7 +123,7 @@ Definition θ_ob : ∀ XF, θ_source H XF ⇒ θ_target H XF.
 Proof.
   intro XZ.
   destruct XZ as [X Z].
-  apply bla.
+  apply (bla X Z).
 Defined.
 
 

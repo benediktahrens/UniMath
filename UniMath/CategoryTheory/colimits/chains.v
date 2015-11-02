@@ -414,7 +414,7 @@ Definition streamFunctor : functor HSET HSET :=
 
 (* F(X) = 1 + (A * X) *)
 Definition listFunctor : functor HSET HSET :=
-  coproduct_functor HSET HSET CoproductsHSET
+  coproduct_functor HSET HSET CoproductsHSET has_homsets_HSET
                     (constant_functor HSET HSET (TerminalObject TerminalHSET))
                     streamFunctor.
 
@@ -493,7 +493,7 @@ Lemma goodProduct (F G : functor HSET HSET) :
 Admitted.
 
 Lemma goodCoproduct (F G : functor HSET HSET) :
-  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET F G).
+  good F -> good G -> good (coproduct_functor _ _ CoproductsHSET has_homsets_HSET F G).
 Admitted.
 
 Lemma listFunctor_chain_cocontinuous : good listFunctor.
