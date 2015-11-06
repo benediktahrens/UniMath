@@ -315,6 +315,20 @@ refine (tpair _ _ _).
     apply colimArrowCommutes.
 Defined.
 
+(* TODO: the other direction would be something like
+
+Lemma is_iso_isColim {g : graph} (D : diagram g C) (CC : ColimCocone D) (d : C)
+  (f : C⟦colim CC,d⟧) :
+  is_iso f → Σ Cd : cocone D d, isColimCocone Cd.
+
+where the new cocone is given by postcomposing all the coconeIn's of CC by f,
+that is, by one of the functions defined above, see Cocone_postcompose
+
+Not sure yet what the most useful formulation of this lemma will be.
+
+*)
+
+
 End colim_def.
 
 Arguments Colims : clear implicits.
