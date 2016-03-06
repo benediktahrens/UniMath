@@ -1,4 +1,4 @@
--Q "../UniMath" UniMath
+-Q ../UniMath UniMath
 -arg -type-in-type
 -R . Folds
 
