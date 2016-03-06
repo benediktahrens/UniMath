@@ -23,7 +23,7 @@ Contents of this file:
 
 *)
 
-Require Import UniMath.Folds.UnicodeNotations.
+Require Import Folds.UnicodeNotations.
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
@@ -32,9 +32,9 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
-Require Import UniMath.Folds.aux_lemmas.
-Require Import UniMath.Folds.folds_precat.
-Require Import UniMath.Folds.from_precats_to_folds_and_back.
+Require Import Folds.aux_lemmas.
+Require Import Folds.folds_precat.
+Require Import Folds.from_precats_to_folds_and_back.
 
 Local Notation "a ⇒ b" := (folds_morphisms a b)(at level 50).
 

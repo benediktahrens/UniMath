@@ -15,7 +15,7 @@ Contents of this file:
 
 *)
 
-Require Import UniMath.Folds.UnicodeNotations.
+Require Import Folds.UnicodeNotations.
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
 Require Import UniMath.Foundations.Basics.Sets.
@@ -23,8 +23,8 @@ Require Import UniMath.Foundations.Basics.UnivalenceAxiom.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 
-Require Import UniMath.Folds.aux_lemmas.
-Require Import UniMath.Folds.folds_precat.
+Require Import Folds.aux_lemmas.
+Require Import Folds.folds_precat.
 
 Local Notation "a ⇒ b" := (precategory_morphisms a b)(at level 50).
 Local Notation "f □ g" := (compose f g)(at level 50).

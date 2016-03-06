@@ -14,7 +14,6 @@ PACKAGES += Ktheory
 PACKAGES += Dedekind
 PACKAGES += Tactics
 PACKAGES += SubstitutionSystems
-PACKAGES += Folds
 ############################################
 # other user options; see also build/Makefile-configuration-template
 BUILD_COQ ?= yes
@@ -172,6 +171,9 @@ $(foreach F, $(VFILES:.v=),								\
 		cd $(shell dirname $(LATEXTARGET)/$F) &&				\
 		pdflatex $(shell basename $(LATEXTARGET)/$F.tex)			\
 		)) 
+
+Folds : Foundations CategoryTheory
+	cd Contrib/Folds && make
 
 #################################
 # targets best used with INCLUDE=no

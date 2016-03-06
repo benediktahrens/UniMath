@@ -41,7 +41,7 @@ Contents of this file:
 
 *)
 
-Require Import UniMath.Folds.UnicodeNotations.
+Require Import Folds.UnicodeNotations.
 
 Require Import UniMath.Foundations.Basics.PartD.
 Require Import UniMath.Foundations.Basics.Propositions.
