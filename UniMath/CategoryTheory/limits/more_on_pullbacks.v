@@ -465,7 +465,7 @@ Variable Hcomm : c ;; a = d ;; b.
 
 Arguments mk_Pullback {_ _ _ _ _ _ _ _ _ _ } _ .
 
-Lemma pb_if_pointwise_pb
+Lemma isPullback_if_pointwise_isPullback
   : (∀ x : C, isPullback _ _ _ _ (nat_trans_eq_pointwise Hcomm x)) -> isPullback _ _ _ _ Hcomm.
 Proof.
   intro T.
@@ -528,4 +528,20 @@ Proof.
       ).
 Defined.
 
+(** Now let's construct the pullback of [a] and [b] explicitly, by
+    taking pointwise pullbacks
+*)
+
+Variable PbD : ∀ {d d' d'' : D} (f : D⟦d', d⟧) (g : D⟦d'', d⟧), Pullback f g.
+
+Arguments PbD {_ _ _ } _ _ .
+
+Definition pb : C -> D := fun c =>
+  PullbackObject (PbD  ((a : nat_trans _ _)  c) ((b : nat_trans _ _ ) c)).
+
+Definition pb_mor {X X'} (f : C⟦X,X'⟧)
+  : D ⟦pb X, pb X'⟧.
+Proof.
+  use PullbackArrow.
+  Abort.
 End pullbacks_pointwise.
