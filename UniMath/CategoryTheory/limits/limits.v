@@ -211,6 +211,12 @@ unshelve refine (uniqueExists _ _ (limUnivProp CC _ _) _ _ _ _).
 - now apply H.
 Qed.
 
+Lemma isLim_is_iso {J C : precategory} (F : functor J C) (CC : LimCone F) (d : C)
+  (cd : cone F d) :
+  isLimCone F d cd -> is_iso (limArrow CC d cd).
+Proof.
+
+
 (*
 Definition Cocone_by_postcompose {g : graph} (D : diagram g C)
  (c : C) (cc : cocone D c) (d : C) (k : C⟦c,d⟧) : cocone D d.
@@ -370,6 +376,12 @@ simple refine (mk_LimCone _ _ _ _).
                   intro a; apply (limOutCommutes (HCg a))).
 - now intros F cc; simpl; apply (LimFunctor_unique _ cc).
 Defined.
+
+Definition abstract_lim_to_pointwise_lim
+  (absLim : [A,C,hsC]) (absCone : cone D absLim) (absH : isLimCone D absLim absCone) :
+  iso (C:=[A,C,hsC]) absLim LimFunctor.
+Proof.
+
 
 End LimFunctor.
 
