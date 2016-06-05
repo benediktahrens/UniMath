@@ -155,6 +155,9 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "=== the isolated bug has been deposited in the file UniMath/$(ISOLATED_BUG_FILE)"
 	@ echo "==="
 
+minimize-req: 
+	cd UniMath && git ls-files "*.v" | xargs ../sub/coq-tools/minimize-requires.py --arg " -indices-matter -type-in-type"  -Q . UniMath -i .bak
+
 world: all html doc 
 
 latex-doc: $(LATEXDIR)/doc.pdf
