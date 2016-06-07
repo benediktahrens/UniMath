@@ -156,7 +156,7 @@ isolate-bug: sub/coq-tools/find-bug.py
 	@ echo "==="
 
 minimize-req: 
-	cd UniMath && git ls-files "*.v" | xargs ../sub/coq-tools/minimize-requires.py --arg " -indices-matter -type-in-type"  -Q . UniMath -i .bak
+	cd UniMath && git ls-files "*.v" | xargs ../sub/coq-tools/minimize-requires.py --arg " -indices-matter" --arg " -type-in-type"  -Q . UniMath -i .bak -k
 
 world: all html doc latex-doc
 
