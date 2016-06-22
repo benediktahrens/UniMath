@@ -19,7 +19,7 @@ Section def_iter.
   (** We are going to use iter 2, which corresponds to empty ⨿ unit ⨿ unit.*)
   (** Here are the terms of this type. *)
   Definition iter0 : iter 2 := @ii1 _ unit (@ii2 empty unit tt).
-  Definition iter1 :iter 2 := @ii2 (empty ⨿ unit) unit tt.
+  Definition iter1 : iter 2 := @ii2 (empty ⨿ unit) unit tt.
 
   (** We use the following for induction. *)
   Definition iter2_rec (x : iter 2) : (x = iter0) ⨿ (x = iter1).

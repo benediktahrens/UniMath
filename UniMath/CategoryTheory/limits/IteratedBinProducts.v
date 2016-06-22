@@ -20,7 +20,7 @@ Section def_IteratedBinProducts.
 
   Variable C : precategory.
 
-  Definition IteratedBinProducts :=
+  Definition IteratedBinProducts : UU :=
     forall (n : nat) (a : iter n -> C), ProductCone (iter n) C a.
   Definition hasIteratedBinProducts := ishinh IteratedBinProducts.
 

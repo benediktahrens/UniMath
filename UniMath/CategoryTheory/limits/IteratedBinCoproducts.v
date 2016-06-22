@@ -20,7 +20,7 @@ Section def_IteratedBinCoproducts.
 
   Variable C : precategory.
 
-  Definition IteratedBinCoproducts :=
+  Definition IteratedBinCoproducts : UU :=
     forall (n : nat) (a : iter n -> C), CoproductCocone (iter n) C a.
   Definition hasIteratedBinCoproducts := ishinh IteratedBinCoproducts.
 
