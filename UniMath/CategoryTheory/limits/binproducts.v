@@ -6,7 +6,10 @@ Require Import UniMath.Foundations.Basics.Sets.
 Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
+Require Import UniMath.CategoryTheory.Iter.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.limits.products.
+
 
 Local Notation "a --> b" := (precategory_morphisms a b)(at level 50).
 
@@ -193,6 +196,161 @@ Proof.
 Qed.
 
 End BinProducts.
+
+(** In this section we construct a binproduct from a product and a product from
+  a binproduct. *)
+Section BinProducts_Products.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  (** Construction of a binproduct from a product. *)
+  Definition binproduct_from_product (a : iter 2 -> C)
+             (Cone : ProductCone (iter 2) C a) :
+    BinProductCone C (a iter0) (a iter1).
+  Proof.
+    set (p1 := ProductPr _ _ Cone iter0).
+    set (p2 := ProductPr _ _ Cone iter1).
+    set (Coneob := (ProductObject _ _ Cone)).
+
+    refine (mk_BinProductCone _ (a iter0) (a iter1) Coneob p1 p2 _).
+    refine (mk_isBinProductCone _ hs _ _ _ _ _ _).
+
+    intros c f g.
+    set (mors := pair_to_iter2_mors_to _ c a f g).
+    set (com1 := ProductPrCommutes _ _ a Cone c mors iter0).
+    set (com2 := ProductPrCommutes _ _ a Cone c mors iter1).
+    set (ar := (ProductArrow _ _ Cone mors)).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity *)
+    split.
+    apply com1.
+    apply com2.
+
+    (* Equality on equality of morphisms *)
+    intros y. apply isapropdirprod; apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply ProductArrowUnique.
+    intros i. induction (iter2_rec i).
+    rewrite a0. apply (dirprod_pr1 X).
+    rewrite b. apply (dirprod_pr2 X).
+  Defined.
+
+  (** Construction of a product from a binproduct. *)
+  Definition product_from_binproduct (c1 c2 : C)
+             (Cone : BinProductCone C c1 c2) :
+    ProductCone (iter 2) C (pair_to_iter2 _ c1 c2).
+  Proof.
+    set (a := pair_to_iter2 _ c1 c2).
+    set (p1 := BinProductPr1 _ Cone).
+    set (p2 := BinProductPr2 _ Cone).
+    set (ConeOb := BinProductObject _ Cone).
+    set (f := pair_to_iter2_mors_to _ ConeOb a p1 p2).
+
+    refine (mk_ProductCone _ _ a ConeOb f _ ).
+    refine (mk_isProductCone _ _ hs _ _ _ _).
+    intros c g.
+
+    set (f1 := g iter0).
+    set (f2 := g iter1).
+    set (ar := BinProductArrow _ Cone f1 f2).
+    set (com1 := BinProductPr1Commutes _ _ _ Cone _ f1 f2).
+    set (com2 := BinProductPr2Commutes _ _ _ Cone _ f1 f2).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity *)
+    intros i. induction (iter2_rec i).
+    rewrite a0. apply com1.
+    rewrite b. apply com2.
+
+    (* Equality on morphism equalities *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply BinProductArrowUnique.
+    apply (X iter0).
+    apply (X iter1).
+  Defined.
+End BinProducts_Products.
+
+
+(** In this section we construct a product from two products by taking the
+  disjoint union of the objects. To do this, we need to assume that the
+  binproduct of the products exists. *)
+Section Product_from_Products.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  (** Construction of a product from two products and a binproduct of the
+    products. *)
+  Theorem product_from_products :
+    forall (I1 I2 : UU) (a1 : I1 -> C) (a2 : I2 -> C)
+      (A1 : ProductCone _ C a1)
+      (A2 : ProductCone _ C a2)
+      (Cone : BinProductCone C (ProductObject _ _ A1)
+                             (ProductObject _ _ A2)),
+      ProductCone _ C (sumofmaps a1 a2).
+  Proof.
+    intros I1 I2 a1 a2 A1 A2 Cone.
+
+    (* Set names from useful terms *)
+    set (A1pr := ProductPr _ _ A1).
+    set (A2pr := ProductPr _ _ A2).
+    set (p1 := BinProductPr1 _ Cone).
+    set (p2 := BinProductPr2 _ Cone).
+    set (m1 := fun i1 : I1 => p1 ;; (A1pr i1)).
+    set (m2 := fun i2 : I2 => p2 ;; (A2pr i2)).
+    set (ConeOb := BinProductObject _ Cone).
+
+    refine (mk_ProductCone
+              _ _ _ ConeOb (sumofmorsto _ ConeOb _ _ _ _ m1 m2) _).
+    refine (mk_isProductCone _ _ hs _ _ _ _).
+    intros c g.
+
+    (* Set names for useful terms *)
+    set (g1 := fun i : I1 => g (ii1 i)).
+    set (g2 := fun i : I2 => g (ii2 i)).
+    set (ar1 := ProductArrow _ _ A1 g1).
+    set (ar2 := ProductArrow _ _ A2 g2).
+    set (ar := BinProductArrow _ Cone ar1 ar2).
+    set (com1 := BinProductPr1Commutes _ _ _ Cone c ar1 ar2).
+    set (com2 := BinProductPr2Commutes _ _ _ Cone c ar1 ar2).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity of morphisms *)
+    intros i. unfold sumofmorsto, coprod_rect. induction i.
+
+    set (com'1 := ProductPrCommutes _ _ _ A1 c g1 a).
+    unfold ar, m1. rewrite assoc. unfold p1, A1pr. rewrite com1.
+    unfold ar1. rewrite -> com'1. apply idpath.
+
+    set (com'2 := ProductPrCommutes _ _ _ A2 c g2 b).
+    unfold ar, m2. rewrite assoc. unfold p2, A2pr. rewrite com2.
+    unfold ar2. rewrite com'2. apply idpath.
+
+    (* Equality of equality of morphisms *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
+    (* Uniqueness of the morphism to the cone *)
+    intros y X. apply BinProductArrowUnique.
+    apply ProductArrowUnique.
+    intros i. unfold sumofmorsto, coprod_rect in X.
+    set (t2 := X (ii1 i)). simpl in t2.
+    fold A1pr. rewrite <- assoc. apply t2.
+
+    apply ProductArrowUnique.
+    intros i. unfold sumofmorsto, coprod_rect in X.
+    set (t2 := X (ii2 i)). simpl in t2.
+    fold A2pr. rewrite <- assoc. apply t2.
+  Defined.
+End Product_from_Products.
+
 
 Section BinProduct_unique.
 

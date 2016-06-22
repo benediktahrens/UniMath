@@ -62,3 +62,6 @@ limits/equalizers.v
 limits/coequalizers.v
 limits/kernels.v
 limits/cokernels.v
+Iter.v
+limits/IteratedBinCoproducts.v
+limits/IteratedBinProducts.v

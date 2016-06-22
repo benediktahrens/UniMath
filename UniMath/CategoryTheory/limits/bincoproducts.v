@@ -13,6 +13,9 @@ Require Import UniMath.CategoryTheory.total2_paths.
 Require Import UniMath.CategoryTheory.precategories.
 Require Import UniMath.CategoryTheory.UnicodeNotations.
 Require Import UniMath.CategoryTheory.BinProductPrecategory.
+Require Import UniMath.CategoryTheory.Iter.
+Require Import UniMath.CategoryTheory.limits.coproducts.
+
 
 (** * Definition of binary coproduct of objects in a precategory *)
 Section coproduct_def.
@@ -525,6 +528,160 @@ Proof.
 Qed.
 
 End BinCoproducts.
+
+
+(** In this section we construct a bincoproduct from a coproduct and a coproduct
+  from a bincoproduct. *)
+Section BinCoproducts_Coproducts.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  (** Construction of a bincoproduct from a coproduct of 2 objects. *)
+  Definition bincoproduct_from_coproduct
+             (a : iter 2 -> C) (Cone : CoproductCocone (iter 2) C a) :
+    BinCoproductCocone C (a iter0) (a iter1).
+  Proof.
+    set (in1 := CoproductIn _ _ Cone iter0).
+    set (in2 := CoproductIn _ _ Cone iter1).
+    set (Coneob := (CoproductObject _ _ Cone)).
+
+    refine (mk_BinCoproductCocone _ (a iter0) (a iter1) Coneob in1 in2 _).
+    refine (mk_isBinCoproductCocone _ hs _ _ _ _ _ _).
+    intros c f g.
+
+    set (mors := pair_to_iter2_mors_from _ c a f g).
+    set (com1 := CoproductInCommutes _ _ a Cone c mors iter0).
+    set (com2 := CoproductInCommutes _ _ a Cone c mors iter1).
+    set (ar := (CoproductArrow _ _ Cone mors)).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity *)
+    split.
+    apply com1.
+    apply com2.
+
+    (* Equality on equalities of morphisms *)
+    intros y. apply isapropdirprod; apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply CoproductArrowUnique.
+    intros i. induction (iter2_rec i).
+    rewrite a0. apply (dirprod_pr1 X).
+    rewrite b. apply (dirprod_pr2 X).
+  Defined.
+
+  (** Construction of a coproduct of 2 objects from a bincoproduct. *)
+  Definition coproduct_from_bincoproduct (c1 c2 : C)
+             (Cone : BinCoproductCocone C c1 c2) :
+    CoproductCocone (iter 2) C (pair_to_iter2 _ c1 c2).
+  Proof.
+    set (a := pair_to_iter2 _ c1 c2).
+    set (in1 := BinCoproductIn1 _ Cone).
+    set (in2 := BinCoproductIn2 _ Cone).
+    set (ConeOb := BinCoproductObject _ Cone).
+    set (f := pair_to_iter2_mors_from _ ConeOb a in1 in2).
+
+    refine (mk_CoproductCocone _ _ a ConeOb f _ ).
+    refine (mk_isCoproductCocone _ _ hs _ _ _ _).
+    intros c g.
+
+    set (f1 := g iter0).
+    set (f2 := g iter1).
+    set (ar := BinCoproductArrow _ Cone f1 f2).
+    set (com1 := BinCoproductIn1Commutes _ _ _ Cone _ f1 f2).
+    set (com2 := BinCoproductIn2Commutes _ _ _ Cone _ f1 f2).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity *)
+    intros i. induction (iter2_rec i).
+    rewrite a0. apply com1.
+    rewrite b. apply com2.
+
+    (* Equality on equalities of morphisms *)
+    intros y. apply impred_isaprop. intros t. apply hs.
+
+    (* Uniqueness *)
+    intros y X. apply BinCoproductArrowUnique.
+    apply (X iter0). apply (X iter1).
+  Defined.
+End BinCoproducts_Coproducts.
+
+
+(** In this section we construct a coproduct from two coproducts by taking the
+  disjoint union of the objects. We need to assume that the bincoproduct of the
+  given two coproducts exists. *)
+Section Coproduct_from_Coproducts.
+
+  Variable C : precategory.
+  Hypothesis hs : has_homsets C.
+
+  (** Construction of a coproduct from two coproducts and a bincoproduct of the
+    two coproducts. *)
+  Theorem coproduct_from_coproducts :
+    forall (I1 I2 : UU) (a1 : I1 -> C) (a2 : I2 -> C)
+      (A1 : CoproductCocone _ C a1)
+      (A2 : CoproductCocone _ C a2)
+      (Cone : BinCoproductCocone C (CoproductObject _ _ A1)
+                                 (CoproductObject _ _ A2)),
+      CoproductCocone _ C (sumofmaps a1 a2).
+  Proof.
+    intros I1 I2 a1 a2 A1 A2 Cone.
+
+    (* Set names from useful terms *)
+    set (A1in := CoproductIn _ _ A1).
+    set (A2in := CoproductIn _ _ A2).
+    set (in1 := BinCoproductIn1 _ Cone).
+    set (in2 := BinCoproductIn2 _ Cone).
+    set (m1 := fun i1 : I1 => (A1in i1) ;; in1).
+    set (m2 := fun i2 : I2 => (A2in i2) ;; in2).
+    set (ConeOb := BinCoproductObject _ Cone).
+
+    refine (mk_CoproductCocone
+              _ _ _ ConeOb (sumofmorsfrom _ ConeOb _ _ _ _ m1 m2) _).
+    refine (mk_isCoproductCocone _ _ hs _ _ _ _).
+    intros c g.
+
+    (* Set names for useful terms *)
+    set (g1 := fun i : I1 => g (ii1 i)).
+    set (g2 := fun i : I2 => g (ii2 i)).
+    set (ar1 := CoproductArrow _ _ A1 g1).
+    set (ar2 := CoproductArrow _ _ A2 g2).
+    set (ar := BinCoproductArrow _ Cone ar1 ar2).
+    set (com1 := BinCoproductIn1Commutes _ _ _ Cone c ar1 ar2).
+    set (com2 := BinCoproductIn2Commutes _ _ _ Cone c ar1 ar2).
+
+    use (unique_exists ar); simpl.
+
+    (* Commutativity *)
+    intros i. unfold sumofmorsfrom, coprod_rect. induction i.
+
+    set (com'1 := CoproductInCommutes _ _ _ A1 c g1 a).
+    unfold m1, ar, A1in, in1. rewrite <- assoc. rewrite com1.
+    unfold ar1. rewrite com'1. apply idpath.
+
+    set (com'2 := CoproductInCommutes _ _ _ A2 c g2 b).
+    unfold m2, ar, A2in, in2. rewrite <- assoc. rewrite com2.
+    unfold ar2. rewrite com'2. apply idpath.
+
+    (* Equality on equalities of morphisms. *)
+    intros y. apply impred_isaprop. intros t0. apply hs.
+
+    (* Uniqueness of the morphism from the cone *)
+    intros y X. apply BinCoproductArrowUnique.
+    apply CoproductArrowUnique.
+    intros i. unfold sumofmorsfrom, coprod_rect in X.
+    set (t2 := X (ii1 i)). simpl in t2.
+    fold A1in. rewrite assoc. apply t2.
+
+    apply CoproductArrowUnique.
+    intros i. unfold sumofmorsfrom, coprod_rect in X.
+    set (t2 := X (ii2 i)). simpl in t2.
+    fold A2in. rewrite assoc. apply t2.
+  Defined.
+End Coproduct_from_Coproducts.
 
 (* Section BinCoproducts_from_Colims. *)
 
