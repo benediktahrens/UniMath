@@ -91,7 +91,7 @@ Section preadditive_with_zero.
     PrecategoryWithAbgrops_unel A x y = ZeroArrow A Z x y.
   Proof.
     unfold ZeroArrow.
-    rewrite <- (id_left A _ _ (ZeroArrowFrom y)).
+    rewrite <- (id_left  (ZeroArrowFrom y)).
     assert (identity Z = PrecategoryWithAbgrops_unel A Z Z) by
         apply ZeroEndo_is_identity.
     rewrite -> X.
