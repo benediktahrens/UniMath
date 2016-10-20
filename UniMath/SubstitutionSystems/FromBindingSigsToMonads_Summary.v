@@ -34,7 +34,7 @@ Definition Arity_to_Signature :
 Proof.
   exact @BindingSigToMonad.Arity_to_Signature.
 Defined.
-
+Print Assumptions Arity_to_Signature.
 Definition BindingSigToSignature :
   Π {C : precategory} (hsC : has_homsets C),
   BinCoproducts C → BinProducts C → Terminal C →
@@ -43,7 +43,7 @@ Definition BindingSigToSignature :
 Proof.
   exact @UniMath.SubstitutionSystems.BindingSigToMonad.BindingSigToSignature.
 Defined.
-
+Print Assumptions BindingSigToSignature.
 
 Definition algebra_ob_pair {C : precategory} {F : functor C C} X (f : C⟦F X, X⟧)
   : algebra_ob F.
@@ -61,7 +61,7 @@ Lemma colim_of_chain_is_initial_alg
 Proof.
   exact @CocontFunctors.colimAlgIsInitial.
 Defined.
-
+Print Assumptions colim_of_chain_is_initial_alg.
 
 Lemma is_omega_cocont_pre_composition_functor
   : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
@@ -70,6 +70,7 @@ Lemma is_omega_cocont_pre_composition_functor
 Proof.
   exact @CocontFunctors.is_omega_cocont_pre_composition_functor.
 Defined.
+Print Assumptions is_omega_cocont_pre_composition_functor.
 
 Definition RightKanExtension_from_limits
   : Π (M C A : precategory) (K : functor M C) (hsC : has_homsets C)
@@ -78,12 +79,14 @@ Definition RightKanExtension_from_limits
 Proof.
   exact @CocontFunctors.RightKanExtension_from_limits.
 Defined.
+Print Assumptions RightKanExtension_from_limits.
 
 Definition ColimCoconeHSET
   : Π (g : graph) (D : diagram g HSET), ColimCocone D.
 Proof.
   exact category_hset_structures.ColimCoconeHSET.
 Defined.
+Print Assumptions ColimCoconeHSET.
 
 Lemma is_omega_cocont_binproduct_functor
   : Π (C : precategory) (PC : BinProducts C), has_homsets C →
@@ -92,6 +95,7 @@ Lemma is_omega_cocont_binproduct_functor
 Proof.
   exact @CocontFunctors.is_omega_cocont_binproduct_functor.
 Defined.
+Print Assumptions is_omega_cocont_binproduct_functor.
 
 Lemma left_adjoint_cocont
   : Π (C D : precategory) (F : functor C D),
@@ -99,3 +103,4 @@ Lemma left_adjoint_cocont
 Proof.
   exact @CocontFunctors.left_adjoint_cocont.
 Defined.
+Print Assumptions left_adjoint_cocont.
