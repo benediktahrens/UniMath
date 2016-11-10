@@ -114,6 +114,9 @@ Let LambdaCalculus_alg : algebra_ob lambdaFunctor :=
 Definition var_map : HSET2⟦functor_identity HSET,LambdaCalculus⟧ :=
   BinCoproductIn1 HSET2 (BinCoproductsHSET2 _ _) ;; LambdaCalculus_mor.
 
+Definition var_map_ (X : HSET) : pr1 X -> pr1 (pr1 LambdaCalculus X)
+  := pr1 var_map X.
+
 (* How to do this nicer? *)
 Definition prod2 (x y : HSET2) : HSET2.
 Proof.
@@ -219,6 +222,23 @@ Defined.
 
 End lambdacalculus.
 
+(** identity function [λ x . x] *)
+Definition lc_id : pr1 (pr1 LambdaCalculus emptyHSET).
+Proof.
+  apply (pr1 lam_map emptyHSET).
+  apply (var_map_ ). cbn. apply inl, tt.
+Defined.
+
+(** [λ x y . app y x] *)
+Definition lc_swap : pr1 (pr1 LambdaCalculus emptyHSET).
+Proof.
+  apply (pr1 lam_map emptyHSET).
+  apply (pr1 lam_map _ ).
+  apply (pr1 app_map _ ).
+  split.
+  - apply var_map_ . cbn. apply inl. exact tt.
+  - apply var_map_ . cbn. apply inr. apply inl. exact tt.
+Defined.
 
 (* Old version *)
 (* Definition Lambda : functor HSET2 HSET2. *)
