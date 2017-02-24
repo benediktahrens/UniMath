@@ -29,6 +29,7 @@ Require Import UniMath.CategoryTheory.Adjunctions.
 
 Local Notation "[ C , D , hs ]" := (functor_precategory C D hs).
 Local Notation "# F" := (functor_on_morphisms F)(at level 3).
+Local Notation "F ∙ G" := (functor_composite F G) (at level 35).
 
 
 (** * Equivalence of (pre)categories *)
@@ -83,6 +84,123 @@ Proof.
   apply functor_iso_if_pointwise_iso.
   apply (pr2 (pr2 HF)).
 Defined.
+
+(** * Sloppy equivalences and adjointification *)
+
+Definition equivalence {C D : precategory} (F : functor C D) : UU
+  := ∑ (G : functor D C) (η : nat_trans (functor_identity _ ) (F ∙ G))
+       (ε : nat_trans (G ∙ F) (functor_identity _ )),
+       (∏ c, is_iso (η c)) × (∏ d, is_iso (ε d)).
+
+Section adjointification.
+
+Context {C D : Precategory} (F : functor C D) (isE : equivalence F).
+Let G : functor D C := pr1 isE.
+Let ηiso c : iso c (G (F c))
+  := isopair (pr1 (pr2 isE) c) (pr1 (pr2 (pr2 (pr2 isE))) c).
+Let εiso d : iso (F (G d)) d
+  := isopair (pr1 (pr2 (pr2 isE)) d) (pr2 (pr2 (pr2 (pr2 isE))) d).
+
+Let ηntiso : iso (C:= [C,C,homset_property _ ]) (functor_identity _ ) (F ∙ G).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  apply (pr1 (pr2 isE)).
+  apply (pr1 (pr2 (pr2 (pr2 isE)))).
+Defined.
+
+Let εntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  use functor_iso_from_pointwise_iso.
+  apply (pr1 (pr2 (pr2 isE))).
+  apply (pr2 (pr2 (pr2 (pr2 isE)))).
+Defined.
+
+(*
+Definition ε'ntiso : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  eapply iso_comp.
+  eapply iso_inv_from_iso.
+
+  eapply (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G)).
+    set (XR := (functor_on_iso (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F) εntiso)).
+    simpl in XR.
+    apply XR.
+     eapply (functor_on_iso pre_whisker F).
+     apply εntiso.
+*)
+
+Let FF : functor [D,D,homset_property _ ] [C, D, homset_property _ ]
+  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) F).
+
+Let GG : functor [C,D,homset_property _ ] [D, D, homset_property _ ]
+  := (pre_composition_functor _ _ _ (homset_property _ ) (homset_property _ ) G).
+
+
+Definition ε'isont : iso (C:= [D,D,homset_property _ ]) (G ∙ F) (functor_identity _ ).
+Proof.
+  eapply iso_comp.
+    set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
+    set (XR':= iso_inv_from_iso XR). apply XR'.
+  eapply iso_comp.
+     Focus 2. apply εntiso.
+  set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
+  set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
+  apply XR'.
+Defined.
+
+
+
+(*
+Definition ε'nat_trans : nat_trans (G ∙ F) (functor_identity _ ).
+Proof.
+  eapply nat_trans_comp.
+    set (XR := functor_on_iso GG (functor_on_iso FF εntiso)).
+    set (XR':= iso_inv_from_iso XR). apply XR'.
+  eapply nat_trans_comp.
+     Focus 2. apply εntiso.
+  set (XR := functor_on_iso (pre_composition_functor _ _ _ (homset_property _) (homset_property _ ) G) (iso_inv_from_iso ηntiso)).
+  set (XR':= functor_on_iso (post_composition_functor _ _ _ (homset_property _ )(homset_property _ ) F) XR).
+  apply XR'.
+Defined.
+*)
+(*
+Definition is_iso_ε'nat_trans : is_iso (C:=[D,D,homset_property _ ]) ε'nat_trans.
+Proof.
+  use is_iso_comp_of_is_isos.
+  unfold XR.
+  cbn. apply pr2.
+  use is_iso_inv_from_iso.
+  apply pr2.
+  cbn.
+  apply is_iso_comp_of_isos.
+*)
+(*
+Lemma is_nat_trans_ε' : is_nat_trans (G ∙ F) (functor_identity _ ) (λ d : D, ε' d).
+Proof.
+*)
+
+(*
+Definition ε' b : iso ((G ∙ F) b) b.
+Proof.
+  eapply iso_comp.
+    eapply iso_inv_from_iso. apply εiso.
+  eapply iso_comp.
+    apply functor_on_iso. simpl. eapply iso_inv_from_iso. apply ηiso.
+  apply εiso.
+Defined.
+
+Lemma is_nat_trans_ε' : is_nat_trans (G ∙ F) (functor_identity _ ) (λ d : D, ε' d).
+Proof.
+  intros x x' f.
+  unfold ε'. cbn.
+Abort.
+*)
+
+
+
+End adjointification.
+
+
 
 (** * Identity functor is an adjoint equivalence *)
 
