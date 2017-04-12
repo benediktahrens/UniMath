@@ -237,3 +237,67 @@ apply (f g (pr1 H)).
 Defined.
 
 End Lam.
+
+
+Section foo.
+
+Search (isaset nat).
+
+Require Import UniMath.Foundations.NaturalNumbers.
+
+Definition cnat : [HSET, HSET,has_homsets_HSET] := constant_functor HSET HSET natset.
+
+Definition cnat_var :
+  [HSET, HSET, has_homsets_HSET] ⟦ functor_identity HSET, cnat ⟧.
+Proof.
+  use mk_nat_trans.
+  - cbn. intros. exact 0.
+  - intros a b f. apply idpath.
+Defined.
+
+Definition cnat_app :
+  [HSET, HSET, has_homsets_HSET]
+        ⟦ BinProductObject [HSET, HSET, has_homsets_HSET]
+            (BinProductsHSET2 cnat cnat), cnat ⟧.
+Proof.
+  use mk_nat_trans.
+  - cbn. intros ? ab.
+    apply 0.
+(*     apply (pr1 ab + pr2 ab). *)
+  - intros a b f; apply idpath.
+Defined.
+
+Check ℓ.
+
+Definition cnat_lam :
+ [HSET, HSET, has_homsets_HSET]
+        ⟦ (λ X0 : [HSET, HSET, has_homsets_HSET],
+           pre_composition_functor _ _ _ has_homsets_HSET  _
+                                   (option_functor BinCoproductsHSET TerminalHSET) X0) cnat, cnat ⟧.
+Proof.
+  use mk_nat_trans.
+  - cbn. intros ? n. exact 0.
+  - intros a b f; cbn. apply idpath.
+Defined.
+
+Definition count := foldr_map cnat cnat_var cnat_app cnat_lam.
+
+
+Definition id_fun_lambda : pr1hSet ((LC : functor _ _ )  emptyHSET).
+Proof.
+  set (XR := pr1 lam_map emptyHSET).
+  apply (XR : _ -> _ ).
+  unfold pre_composition_functor.
+  set (XR' := pr1 var_map  ).
+  use XR'. cbn. apply inl. apply tt.
+Defined.
+
+Definition foobar : nat :=  pr1 (pr1 count) emptyHSET id_fun_lambda.
+
+Goal 0 = foobar.
+  try apply idpath.
+Abort.
+
+End foo.
+
+(* *)
