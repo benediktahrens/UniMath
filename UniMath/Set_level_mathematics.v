@@ -78,9 +78,6 @@ Proof.
   - intro x. apply isasetaprop, propproperty.
 Defined.
 
-Definition carrier_subset {X : hSet} (Y : hsubtype X) : hSet
-  := hSetpair (∑ x, Y x) (isaset_carrier_subset X Y).
-
 
 Delimit Scope subset with subset.
 
@@ -332,36 +329,6 @@ Defined.
 Definition hrellogeq {X : UU} (L R : hrel X) : UU
   := ∏ x1 x2, (L x1 x2 <-> R x1 x2).
 
-Definition istranslogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : istrans L) : istrans R.
-Proof.
-  intros. intros x1 x2 x3 r12 r23.
-  apply ((pr1 (lg _ _)) (isl _ _ _ ((pr2 (lg _ _)) r12) ((pr2 (lg _ _)) r23))).
-Defined.
-
-Definition isrefllogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isrefl L) : isrefl R.
-Proof.
-  intros. intro x. apply (pr1 (lg _ _) (isl x)).
-Defined.
-
-Definition issymmlogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : issymm L) : issymm R.
-Proof.
-  intros. intros x1 x2 r12.
-  apply (pr1 (lg _ _) (isl _ _ (pr2 (lg _ _) r12))).
-Defined.
-
-Definition ispologeqf {X : UU} {L R : hrel X} (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2)
-           (isl : ispreorder L) : ispreorder R.
-Proof.
-  intros.
-  apply (dirprodpair (istranslogeqf lg (pr1 isl)) (isrefllogeqf lg (pr2 isl))).
-Defined.
-
-
-
-
 
 
 
@@ -380,13 +347,6 @@ Coercion pr1eqrel : eqrel >-> Funclass.
 Definition eqreltrans {X : UU} (R : eqrel X) : istrans R := pr1 (pr1 (pr2 R)).
 Definition eqrelrefl {X : UU} (R : eqrel X) : isrefl R := pr2 (pr1 (pr2 R)).
 Definition eqrelsymm {X : UU} (R : eqrel X) : issymm R := pr2 (pr2 R).
-
-
-
-
-
-
-
 
 
 
