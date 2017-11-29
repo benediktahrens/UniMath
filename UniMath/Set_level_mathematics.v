@@ -49,13 +49,14 @@ Proof.
   exact isasethProp.
 Defined.
 
+(*
 Definition totalsubtype (X : UU) : hsubtype X := λ x, htrue.
 
 Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
 Proof.
   apply weqpr1. intro. apply iscontrunit.
 Defined.
-
+*)
 
 
 
@@ -226,38 +227,8 @@ Proof.
   intros. apply impred; intro. apply propproperty.
 Defined.
 
-Lemma isaprop_istotal {X : hSet} (R : hrel X) : isaprop (istotal R).
-Proof.
-  intros. unfold istotal.
-  apply impred; intro x.
-  apply impred; intro y.
-  apply propproperty.
-Defined.
 
-Lemma isaprop_isantisymm {X : hSet} (R : hrel X) : isaprop (isantisymm R).
-Proof.
-  intros. unfold isantisymm. apply impred; intro x. apply impred; intro y.
-  apply impred; intro r. apply impred; intro s. apply setproperty.
-Defined.
 
-Lemma isaprop_ispreorder {X : hSet} (R : hrel X) : isaprop (ispreorder R).
-Proof.
-  intros.
-  unfold ispreorder.
-  apply isapropdirprod.
-  { apply isaprop_istrans. }
-  { apply isaprop_isrefl. }
-Defined.
-
-Lemma isaprop_isPartialOrder {X : hSet} (R : hrel X) :
-  isaprop (isPartialOrder R).
-Proof.
-  intros.
-  unfold isPartialOrder.
-  apply isapropdirprod.
-  { apply isaprop_ispreorder. }
-  { apply isaprop_isantisymm. }
-Defined.
 
 (** the relations on a set form a set *)
 
@@ -272,8 +243,6 @@ Defined.
 
 (** *** Standard properties of relations and logical equivalences *)
 
-Definition hrellogeq {X : UU} (L R : hrel X) : UU
-  := ∏ x1 x2, (L x1 x2 <-> R x1 x2).
 
 
 
@@ -446,11 +415,6 @@ Defined.
 Definition iscomprelfun {X Y : UU} (R : hrel X) (f : X -> Y) : UU
   := ∏ x x' : X, R x x' -> f x = f x'.
 
-Lemma iscomprelfunlogeqf {X Y : UU} {R L : hrel X} (lg : hrellogeq L R)
-      (f : X -> Y) (is : iscomprelfun L f) : iscomprelfun R f.
-Proof.
-  intros. intros x x' r. apply (is _ _ (pr2 (lg  _ _) r)).
-Defined.
 
 Lemma isapropimeqclass {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
       (is : iscomprelfun R f) (c : setquot R) :
