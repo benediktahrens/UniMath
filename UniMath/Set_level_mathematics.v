@@ -10,10 +10,6 @@ Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
 Definition pr1hSet : hSet -> UU := @pr1 UU (λ X : UU, isaset X).
 Coercion pr1hSet: hSet >-> UU.
 
-Definition eqset {X : hSet} (x x' : X) : hProp
-  := hProppair (x = x') (pr2 X x x').
-Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
-
 Delimit Scope set with set.
 
 Definition setproperty (X : hSet) := pr2 X.
@@ -29,18 +25,11 @@ Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
 Definition carrier {X : UU} (A : hsubtype X) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
 
-Definition carrierpair {X : UU} (A : hsubtype X) :
-   ∏ t : X, A t → ∑ x : X, A x := tpair A.
-Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
 
 
 Delimit Scope subset with subset.
 
-Lemma isinclpr1carrier {X : UU} (A : hsubtype X) : isincl (@pr1carrier X A).
-Proof.
-  intros. apply (isinclpr1 A (λ x : _, pr2 (A x))).
-Defined.
 
 Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
