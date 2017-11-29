@@ -95,53 +95,17 @@ Definition iseqrelconstr {X : UU} {R : hrel X}
 
 Definition isirrefl {X : UU} (R : hrel X) : UU := ∏ x : X, ¬ R x x.
 
-Definition isasymm {X : UU} (R : hrel X) : UU
-  := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1 -> empty.
-
-Definition iscoasymm {X : UU} (R : hrel X) : UU := ∏ x1 x2, ¬ R x1 x2 -> R x2 x1.
 
 Definition istotal {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ∨ R x2 x1.
 
-Definition isdectotal {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ⨿ R x2 x1.
 
-Definition iscotrans {X : UU} (R : hrel X) : UU
-  := ∏ x1 x2 x3, R x1 x3 -> R x1 x2 ∨ R x2 x3.
 
-Definition isdeccotrans {X : UU} (R : hrel X) : UU
-  := ∏ x1 x2 x3, R x1 x3 -> R x1 x2 ⨿ R x2 x3.
 
-Definition isdecrel {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ⨿ ¬ R x1 x2.
 
-Definition isnegrel {X : UU} (R : hrel X) : UU
-  := ∏ x1 x2, ¬ ¬ R x1 x2 -> R x1 x2.
 
-(** Note that the property of being (co-)antisymmetric is different from other
-  properties of relations which we consider due to the presence of [paths] in
-  its formulation. As a consequence it behaves differently relative to the
-  quotients of types - the quotient relation can be (co-)antisymmetric while
-  the original relation was not. *)
 
-Definition isantisymm {X : UU} (R : hrel X) : UU
-  := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1 -> x1 = x2.
 
-Definition isPartialOrder {X : UU} (R : hrel X) : UU
-  := ispreorder R × isantisymm R.
 
-Ltac unwrap_isPartialOrder i :=
-  induction i as [transrefl antisymm]; induction transrefl as [trans refl].
-
-Definition isantisymmneg {X : UU} (R : hrel X) : UU
-  := ∏ (x1 x2 : X), ¬ R x1 x2 -> ¬ R x2 x1 -> x1 = x2.
-
-Definition iscoantisymm {X : UU} (R : hrel X) : UU
-  := ∏ x1 x2, ¬ R x1 x2 -> R x2 x1 ⨿ (x1 = x2).
-
-(** Note that the following condition on a relation is different from all the
-  other which we have considered since it is not a property but a structure,
-  i.e. it is in general unclear whether [isaprop (neqchoice R)] is provable. *)
-
-Definition neqchoice {X : UU} (R : hrel X) : UU
-  := ∏ x1 x2, x1 != x2 -> R x1 x2 ⨿ R x2 x1.
 
 (** proofs that the properties are propositions  *)
 
