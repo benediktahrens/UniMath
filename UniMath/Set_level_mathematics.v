@@ -488,64 +488,11 @@ Defined.
 
 
 
-(** *** Preorderings, partial orderings, and associated types. *)
-
-(* preoderings *)
-Definition po (X : UU) : UU := ∑ R : hrel X, ispreorder R.
-Definition popair {X : UU} (R : hrel X) (is : ispreorder R) : po X
-  := tpair ispreorder R is.
-Definition carrierofpo (X : UU) : po X -> (X -> X -> hProp) := @pr1 _ ispreorder.
-Coercion carrierofpo : po >-> Funclass.
-
-Definition PreorderedSet : UU := ∑ X : hSet, po X.
-Definition PreorderedSetPair (X : hSet) (R :po X) : PreorderedSet
-  := tpair _ X R.
-Definition carrierofPreorderedSet : PreorderedSet -> hSet := pr1.
-Coercion carrierofPreorderedSet : PreorderedSet >-> hSet.
-Definition PreorderedSetRelation (X : PreorderedSet) : hrel X := pr1 (pr2 X).
-
-(* partial orderings *)
-Definition PartialOrder (X : hSet) : UU := ∑ R : hrel X, isPartialOrder R.
-Definition PartialOrderpair {X : hSet} (R : hrel X) (is : isPartialOrder R) :
-  PartialOrder X
-  := tpair isPartialOrder R is.
-Definition carrierofPartialOrder {X : hSet} : PartialOrder X -> hrel X := pr1.
-Coercion carrierofPartialOrder : PartialOrder >-> hrel.
-
-Definition Poset : UU := ∑ X, PartialOrder X.
-Definition Posetpair (X : hSet) (R : PartialOrder X) : Poset
-  := tpair PartialOrder X R.
-Definition carrierofposet : Poset -> hSet := pr1.
-Coercion carrierofposet : Poset >-> hSet.
-Definition posetRelation (X : Poset) : hrel X := pr1 (pr2 X).
-
-Lemma isrefl_posetRelation (X : Poset) : isrefl (posetRelation X).
-Proof.
-  intros x. exact (pr2 (pr1 (pr2 (pr2 X))) x).
-Defined.
 
 
-(** the preorders on a set form a set *)
 
-Definition isaset_po (X : hSet) : isaset (po X).
-  intros.
-  unfold po.
-  apply (isofhleveltotal2 2).
-  { apply isaset_hrel. }
-  intros x. apply hlevelntosn. apply isaprop_ispreorder.
-Defined.
 
-(** the partial orders on a set form a set *)
 
-Definition isaset_PartialOrder X : isaset (PartialOrder X).
-  intros.
-  unfold PartialOrder.
-  apply (isofhleveltotal2 2).
-  { apply isaset_hrel. }
-  intros x. apply hlevelntosn. apply isaprop_isPartialOrder.
-Defined.
-
-(** poset equivalences *)
 
 (** *** Eqivalence relations and associated types. *)
 
