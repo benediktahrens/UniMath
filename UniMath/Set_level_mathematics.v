@@ -1,81 +1,8 @@
-(** * Generalities on [hSet].  Vladimir Voevodsky. Feb. - Sep. 2011
-
-In this file we introduce the type [hSet] of h-sets, i.e., of types of h-level 2
-as well as a number of constructions such as type of (monic) subtypes, images,
-surjectivity etc. which, while they formally apply to functions between
-arbitrary types actually only depend on the behavior of the function on the sets
-of connected components of these types.
-
-While it is possible to write a part of this file in a form which does not
-require RR1 it seems like a waste of effort since it would require to repeat a
-lot of things twice. Accordingly we assume RR1 from the start in dealing with
-sets. The drawback is that all the subsequent files will not compile at the
-moment without the Type in Type patch.
-*)
-
-(** ** Contents
-- The type of sets i.e. of types of h-level 2 in [UU]
- - [hProp] as a set
- - Booleans as a set
-- Types [X] which satisfy "weak" axiom of choice for all families
-  [P : X -> UU]
-- The type of monic subtypes of a type (subsets of the set of connected
-  components)
- - General definitions
- - Direct product of two subtypes
- - A subtype with paths between any two elements is an [hProp]
-- Relations on types (or equivalently relations on the sets of connected
-  components)
- - Relations and boolean relations
- - Standard properties of relations
- - Elementary implications between properties of relations
- - Standard properties of relations and logical equivalences
- - Preorderings, partial orderings, and associated types
- - Equivalence relations and associated types
- - Direct product of two relations
- - Negation of a relation and its properties
- - Boolean representation of decidable equality
- - Boolean representation of decidable relations
- - Restriction of a relation to a subtype
- - Equivalence classes with respect to a given relation
- - Direct product of equivalence classes
-- Surjections to sets are epimorphisms
-- Epimorphisms are surjections
-- Universal property enjoyed by surjections
-- Set quotients of types
- - Set quotients defined in terms of equivalence classes
- - Universal property of [setquot R] for functions to sets satisfying
-   compatibility condition [iscomprelfun]
- - Functoriality of [setquot] for functions mapping one relation to another
- - Universal property of [setquot] for predicates of one and several variables
- - The case when the function between quotients defined by [setquotfun] is a
-   surjection, inclusion or a weak equivalence
- - [setquot] with respect to the product of two relations
- - Universal property of [setquot] for functions of two variables
- - Functoriality of [setquot] for functions of two variables mapping one
-   relation to another
- - Set quotients with respect to decidable equivalence relations have decidable
-   equality
- - Relations on quotient sets
- - Subtypes of quotients and quotients of subtypes
- - The set of connected components of a type
-- Set quotients. Construction 2 (Unfinished)
- - Functions compatible with a relation
- - The quotient set of a type by a relation
- - Universal property of [setquot2 R] for functions to sets satisfying
-   compatibility condition [iscomplrelfun]
- - Weak equivalence from [R x x'] to [paths (setquot2pr R x) (setquot2pr R x')]
-- Consequences of univalence
-*)
 
 
 (** ** Preamble *)
 
 (** Settings *)
-
-(** The following line has to be removed for the file to compile with Coq8.2 *)
-Unset Automatic Introduction.
-
 
 (** Imports *)
 
@@ -102,16 +29,7 @@ Delimit Scope set with set.
 
 Definition setproperty (X : hSet) := pr2 X.
 
-Definition setdirprod (X Y : hSet) : hSet.
-Proof.
-  intros. exists (X × Y).
-  apply (isofhleveldirprod 2); apply setproperty.
-Defined.
 
-Definition setcoprod (X Y : hSet) : hSet.
-Proof.
-  intros. exists (X ⨿ Y). apply isasetcoprod; apply setproperty.
-Defined.
 
 Lemma isaset_total2_hSet (X : hSet) (Y : X -> hSet) : isaset (∑ x, Y x).
 Proof.
@@ -120,17 +38,7 @@ Proof.
   - intro x. apply setproperty.
 Defined.
 
-Definition total2_hSet {X : hSet} (Y : X -> hSet) : hSet
-  := hSetpair (∑ x, Y x) (isaset_total2_hSet X Y).
 
-Definition hfiber_hSet {X Y : hSet} (f : X → Y) (y : Y) : hSet
-  := hSetpair (hfiber f y) (isaset_hfiber f y (pr2 X) (pr2 Y)).
-
-Delimit Scope set with set.
-
-Notation "'∑' x .. y , P" := (total2_hSet (λ x,.. (total2_hSet (λ y, P))..))
-  (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \sum *)
 
 Lemma isaset_forall_hSet (X : UU) (Y : X -> hSet) : isaset (∏ x, Y x).
 Proof.
@@ -146,13 +54,6 @@ Notation "'∏' x .. y , P" := (forall_hSet (λ x,.. (forall_hSet (λ y, P))..))
 
 Definition unitset : hSet := hSetpair unit isasetunit.
 
-Definition dirprod_hSet (X Y : hSet) : hSet.
-Proof.
-  intros X Y. exists (X × Y).
-  abstract (exact (isasetdirprod _ _ (setproperty X) (setproperty Y))).
-Defined.
-
-Notation "A × B" := (dirprod_hSet A B) (at level 75, right associativity) : set.
 
 (** *** [hProp] as a set *)
 
@@ -171,14 +72,6 @@ Definition boolset : hSet := hSetpair bool isasetbool.
 
 (* properties of functions between sets *)
 
-Definition isInjectiveFunction {X Y : hSet} (f : X -> Y) : hProp.
-Proof.
-  intros. exists (∏ (x x': X), f x = f x' -> x = x').
-  abstract (
-      intros; apply impred; intro x; apply impred; intro y;
-      apply impred; intro e; apply setproperty)
-           using isaprop_isInjectiveFunction.
-Defined.
 
 
 (** ** Types [X] which satisfy "weak" axiom of choice for all families [P : X -> UU]
@@ -207,66 +100,6 @@ to satisfy weak axiom of choice.
 
 Definition ischoicebase_uu1 (X : UU)
   := ∏ P : X -> UU, (∏ x : X, ishinh (P x)) -> ishinh (∏ x : X, P x).
-
-(** Uses RR1 *)
-Lemma isapropischoicebase (X : UU) : isaprop (ischoicebase_uu1 X).
-Proof.
-  intro. apply impred.
-  intro P. apply impred.
-  intro fs. apply (pr2 (ishinh _)).
-Defined.
-
-Definition ischoicebase (X : UU) : hProp := hProppair _ (isapropischoicebase X).
-
-Lemma ischoicebaseweqf {X Y : UU} (w : X ≃ Y) (is : ischoicebase X) :
-  ischoicebase Y.
-Proof.
-  intros. unfold ischoicebase.
-  intros Q fs.
-  apply (hinhfun (invweq (weqonsecbase Q w))).
-  apply (is (funcomp w Q) (λ x : X, fs (w x))).
-Defined.
-
-Lemma ischoicebaseweqb {X Y : UU} (w : X ≃ Y) (is : ischoicebase Y) :
-  ischoicebase X.
-Proof.
-  intros. apply (ischoicebaseweqf (invweq w) is).
-Defined.
-
-Lemma ischoicebaseunit : ischoicebase unit.
-Proof.
-  unfold ischoicebase. intros P fs.
-  apply (hinhfun (tosecoverunit P)).
-  apply (fs tt).
-Defined.
-
-Lemma ischoicebasecontr {X : UU} (is : iscontr X) : ischoicebase X.
-Proof.
-  intros.
-  apply (ischoicebaseweqb (weqcontrtounit is) ischoicebaseunit).
-Defined.
-
-Lemma ischoicebaseempty : ischoicebase empty.
-Proof.
-  unfold ischoicebase. intros P fs.
-  apply (hinhpr (λ x : empty, fromempty x)).
-Defined.
-
-Lemma ischoicebaseempty2 {X : UU} (is : ¬ X) : ischoicebase X.
-Proof.
-  intros.
-  apply (ischoicebaseweqb (weqtoempty is) ischoicebaseempty).
-Defined.
-
-Lemma ischoicebasecoprod {X Y : UU}
-      (isx : ischoicebase X) (isy : ischoicebase Y) : ischoicebase (coprod X Y).
-Proof.
-  intros. unfold ischoicebase.
-  intros P fs. apply (hinhfun (invweq (weqsecovercoprodtoprod P))).
-  apply hinhand.
-  apply (isx _ (λ x : X, fs (ii1 x))).
-  apply (isy _ (λ y : Y, fs (ii2 y))).
-Defined.
 
 
 
@@ -312,7 +145,6 @@ Defined.
 
 Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
-  intro X.
   change (isofhlevel 2 (hsubtype X)).
   apply impred; intro x.
   exact isasethProp.
@@ -322,14 +154,14 @@ Definition totalsubtype (X : UU) : hsubtype X := λ x, htrue.
 
 Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
 Proof.
-  intro. apply weqpr1. intro. apply iscontrunit.
+  apply weqpr1. intro. apply iscontrunit.
 Defined.
 
 Definition weq_subtypes {X Y : UU} (w : X ≃ Y)
            (S : hsubtype X) (T : hsubtype Y) :
            (∏ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
 Proof.
-  intros ? ? ? ? ? eq. apply (weqbandf w). intro x. apply weqiff.
+  intros eq. apply (weqbandf w). intro x. apply weqiff.
   - apply eq.
   - apply propproperty.
   - apply propproperty.
@@ -423,7 +255,7 @@ Defined.
 Definition squash_pairs_to_set {Y : UU} (F : Y -> UU) :
   (isaset Y) -> (∏ y y', F y -> F y' -> y = y') -> (∃ y, F y) -> Y.
 Proof.
-  intros ? ? is e.
+  intros is e.
   set (P := ∑ y, ∥ F y ∥).
   assert (iP : isaprop P).
   {
@@ -447,7 +279,7 @@ Defined.
 Definition squash_to_set {X Y : UU} (is : isaset Y) (f : X -> Y) :
           (∏ x x', f x = f x') -> ∥ X ∥ -> Y.
 Proof.
-  intros ? ? ? ? e w.
+  intros e w.
   set (P := ∑ y, ∃ x, f x = y).
   assert (j : isaprop P).
   {
@@ -608,40 +440,6 @@ Definition isaset_hrel (X : hSet) : isaset (hrel X).
   exact isasethProp.
 Defined.
 
-(** *** Elementary implications between properties of relations *)
-
-Lemma istransandirrefltoasymm {X : UU} {R : hrel X}
-      (is1 : istrans R) (is2 : isirrefl R) : isasymm R.
-Proof.
-  intros. intros a b rab rba. apply (is2 _ (is1 _ _ _ rab rba)).
-Defined.
-
-Lemma istotaltoiscoasymm {X : UU} {R : hrel X} (is : istotal R) : iscoasymm R.
-Proof.
-  intros. intros x1 x2. apply (hdisjtoimpl (is _ _)).
-Defined.
-
-Lemma isdecreltoisnegrel {X : UU} {R : hrel X} (is : isdecrel R) : isnegrel R.
-Proof.
-  intros. intros x1 x2.
-  destruct (is x1 x2) as [ r | nr ].
-  - intro. apply r.
-  - intro nnr. destruct (nnr nr).
-Defined.
-
-Lemma isantisymmnegtoiscoantisymm {X : UU} {R : hrel X}
-      (isdr : isdecrel R) (isr : isantisymmneg R) : iscoantisymm R.
-Proof.
-  intros. intros x1 x2 nrx12.
-  destruct (isdr x2 x1) as [ r | nr ].
-  apply (ii1 r). apply ii2. apply (isr _ _ nrx12 nr).
-Defined.
-
-Lemma rtoneq {X : UU} {R : hrel X} (is : isirrefl R) {a b : X} (r : R a b) :
-  a != b.
-Proof.
-  intros. intro e. rewrite e in r. apply (is b r).
-Defined.
 
 
 (** *** Standard properties of relations and logical equivalences *)
@@ -729,45 +527,6 @@ Proof.
   - apply (ii2 (negf (pr2 (lg _ _)) nl)).
 Defined.
 
-Definition isnegrellogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isnegrel L) : isnegrel R.
-Proof.
-  intros. intros x1 x2 nnr.
-  apply ((pr1 (lg _ _)) (isl _ _ (negf (negf (pr2 (lg _ _))) nnr))).
-Defined.
-
-Definition isantisymmlogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymm L) :
-  isantisymm R.
-Proof.
-  intros. intros x1 x2 r12 r21.
-  apply (isl _ _ (pr2 (lg _ _) r12) (pr2 (lg _ _) r21)).
-Defined.
-
-Definition isantisymmneglogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isantisymmneg L) :
-  isantisymmneg R.
-Proof.
-  intros. intros x1 x2 nr12 nr21.
-  apply (isl _ _ (negf (pr1 (lg _ _)) nr12) (negf (pr1 (lg _ _)) nr21)).
-Defined.
-
-Definition iscoantisymmlogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoantisymm L) :
-  iscoantisymm R.
-Proof.
-  intros. intros x1 x2 r12.
-  set (int := isl _ _ (negf (pr1 (lg _ _)) r12)). generalize int. clear int.
-  simpl. apply (coprodf (pr1 (lg _ _)) (idfun _)).
-Defined.
-
-Definition neqchoicelogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : neqchoice L) : neqchoice R.
-Proof.
-  intros. intros x1 x2 ne.
-  apply (coprodf (pr1 (lg x1 x2)) (pr1 (lg x2 x1)) (isl _ _ ne)).
-Defined.
-
 
 
 (** *** Preorderings, partial orderings, and associated types. *)
@@ -803,41 +562,9 @@ Definition posetRelation (X : Poset) : hrel X := pr1 (pr2 X).
 
 Lemma isrefl_posetRelation (X : Poset) : isrefl (posetRelation X).
 Proof.
-  intros ? x. exact (pr2 (pr1 (pr2 (pr2 X))) x).
+  intros x. exact (pr2 (pr1 (pr2 (pr2 X))) x).
 Defined.
 
-Lemma istrans_posetRelation (X : Poset) : istrans (posetRelation X).
-Proof.
-  intros ? x y z l m. exact (pr1 (pr1 (pr2 (pr2 X))) x y z l m).
-Defined.
-
-Lemma isantisymm_posetRelation (X : Poset) : isantisymm (posetRelation X).
-Proof.
-  intros ? x y l m. exact (pr2 (pr2 (pr2 X)) x y l m).
-Defined.
-
-Delimit Scope poset with poset.
-Notation "m ≤ n" := (posetRelation _ m n) (no associativity, at level 70) :
-                      poset.
-Definition isaposetmorphism {X Y : Poset} (f : X -> Y)
-  := (∏ x x' : X, x ≤ x' -> f x ≤ f x')%poset.
-Definition posetmorphism (X Y : Poset) : UU
-  := total2 (fun f : X -> Y => isaposetmorphism f).
-Definition posetmorphismpair (X Y : Poset) :
-  ∏ t : X → Y, isaposetmorphism t → ∑ f : X → Y, isaposetmorphism f
-  := tpair (fun f : X -> Y => isaposetmorphism f).
-Definition carrierofposetmorphism (X Y : Poset) : posetmorphism X Y -> (X -> Y)
-  := @pr1 _ _.
-Coercion carrierofposetmorphism : posetmorphism >-> Funclass.
-
-Definition isdec_ordering (X : Poset) : UU
-  := ∏ (x y : X), decidable (x ≤ y)%poset.
-
-Lemma isaprop_isaposetmorphism {X Y : Poset} (f : X -> Y) :
-  isaprop (isaposetmorphism f).
-Proof.
-  intros. apply impredtwice; intros. apply impred_prop.
-Defined.
 
 (** the preorders on a set form a set *)
 
@@ -860,75 +587,6 @@ Definition isaset_PartialOrder X : isaset (PartialOrder X).
 Defined.
 
 (** poset equivalences *)
-
-Definition isPosetEquivalence {X Y : Poset} (f : X ≃ Y) :=
-  isaposetmorphism f × isaposetmorphism (invmap f).
-
-Lemma isaprop_isPosetEquivalence {X Y : Poset} (f : X ≃ Y) :
-  isaprop (isPosetEquivalence f).
-Proof.
-  intros. unfold isPosetEquivalence.
-  apply isapropdirprod; apply isaprop_isaposetmorphism.
-Defined.
-
-Definition isPosetEquivalence_idweq (X : Poset) : isPosetEquivalence (idweq X).
-Proof.
-  intros. split.
-  - intros x y le. exact le.
-  - intros x y le. exact le.
-Defined.
-
-Definition PosetEquivalence (X Y : Poset) : UU
-  := ∑ f : X ≃ Y, isPosetEquivalence f.
-
-Local Open Scope poset.
-Notation "X ≅ Y" := (PosetEquivalence X Y) (at level 60, no associativity) :
-                      poset.
-(* written \cong in Agda input method *)
-
-Definition posetUnderlyingEquivalence {X Y : Poset} : X ≅ Y -> X ≃ Y := pr1.
-Coercion posetUnderlyingEquivalence : PosetEquivalence >-> weq.
-
-Definition identityPosetEquivalence (X : Poset) : PosetEquivalence X X.
-Proof.
-  intros. exists (idweq X). apply isPosetEquivalence_idweq.
-Defined.
-
-Lemma isincl_pr1_PosetEquivalence (X Y : Poset) : isincl (pr1 : X ≅ Y -> X ≃ Y).
-Proof.
-  intros. apply isinclpr1. apply isaprop_isPosetEquivalence.
-Defined.
-
-Lemma isinj_pr1_PosetEquivalence (X Y : Poset) :
-  isInjective (pr1 : X ≅ Y -> X ≃ Y).
-Proof.
-  intros ? ? f g. apply isweqonpathsincl. apply isincl_pr1_PosetEquivalence.
-Defined.
-
-(** poset concepts *)
-
-Notation "m < n" := (m ≤ n × m != n)%poset (only parsing) : poset.
-Definition isMinimal {X : Poset} (x : X) : UU := ∏ y, x ≤ y.
-Definition isMaximal {X : Poset} (x : X) : UU := ∏ y, y ≤ x.
-Definition consecutive {X : Poset} (x y : X) : UU
-  := x < y × ∏ z, ¬ (x < z × z < y).
-
-Lemma isaprop_isMinimal {X : Poset} (x : X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred_prop.
-Defined.
-
-Lemma isaprop_isMaximal {X : Poset} (x : X) : isaprop (isMaximal x).
-Proof.
-  intros. unfold isMaximal. apply impred_prop.
-Defined.
-
-Lemma isaprop_consecutive {X : Poset} (x y : X) : isaprop (consecutive x y).
-Proof.
-  intros. unfold consecutive. apply isapropdirprod.
-  - apply isapropdirprod. { apply pr2. } simpl. apply isapropneg.
-  - apply impred; intro z. apply isapropneg.
-Defined.
 
 (** *** Eqivalence relations and associated types. *)
 
@@ -980,63 +638,6 @@ Definition eqreldirprod {X Y : UU} (RX : eqrel X) (RY : eqrel Y) :
                  (issymmdirprod  _ _ (eqrelsymm RX) (eqrelsymm RY)).
 
 
-(** *** Negation of a relation and its properties *)
-
-Definition negrel {X : UU} (R : hrel X) : hrel X
-  := λ x x', hProppair (¬ R x x') (isapropneg _). (* uses [funextemptyAxiom] *)
-
-Lemma istransnegrel {X : UU} (R : hrel X) (isr : iscotrans R) :
-  istrans (negrel R).
-(* uses [funextfun] and [funextemptyAxiom] *)
-Proof.
-  intros. intros x1 x2 x3 r12 r23.
-  apply (negf (isr x1 x2 x3)).
-  apply (toneghdisj (dirprodpair r12 r23)).
-Defined.
-
-Lemma iscotrans_to_istrans_negReln {X : UU} {R : hrel X} (NR : negReln R) :
-  isdeccotrans R -> istrans NR.
-(* uses no axioms; compare to istransnegrel *)
-Proof.
-  intros ? ? ? i ? ? ? nxy nyz. apply neg_to_negProp.
-  apply (negf (i x1 x2 x3)). intro c. induction c as [c|c].
-  - exact (negProp_to_neg nxy c).
-  - exact (negProp_to_neg nyz c).
-Defined.
-
-Lemma isasymmnegrel {X : UU} (R : hrel X) (isr : iscoasymm R) :
-  isasymm (negrel R).
-Proof.
-  intros. intros x1 x2 r12 r21. apply (r21 (isr _ _ r12)).
-Defined.
-
-Lemma iscoasymmgenrel {X : UU} (R : hrel X) (isr : isasymm R) :
-  iscoasymm (negrel R).
-Proof.
-  intros. intros x1 x2 nr12. apply (negf (isr _ _) nr12).
-Defined.
-
-Lemma isdecnegrel {X : UU} (R : hrel X) (isr : isdecrel R) :
-  isdecrel (negrel R).
-(* uses [funextemptyAxiom] *)
-Proof.
-  intros. intros x1 x2.
-  destruct (isr x1 x2) as [ r | nr ].
-  - apply ii2. apply (todneg _ r).
-  - apply (ii1 nr).
-Defined.
-
-Lemma isnegnegrel {X : UU} (R : hrel X) : isnegrel (negrel R).
-Proof.
-  intros. intros x1 x2.
-  apply (negf (todneg (R x1 x2))).
-Defined.
-
-Lemma isantisymmnegrel {X : UU} (R : hrel X) (isr : isantisymmneg R) :
-  isantisymm (negrel R).
-Proof.
-  intros. apply isr.
-Defined.
 
 (** *** Boolean representation of decidable equality *)
 
@@ -1089,119 +690,6 @@ Defined.
 
 
 
-(** *** Restriction of a relation to a subtype *)
-
-Definition resrel {X : UU} (L : hrel X) (P : hsubtype X) : hrel P
-  := λ p1 p2, L (pr1 p1) (pr1 p2).
-
-Definition istransresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : istrans L) : istrans (resrel L P).
-Proof.
-  intros. intros x1 x2 x3 r12 r23.
-  apply (isl _ (pr1 x2) _ r12 r23).
-Defined.
-
-Definition isreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isrefl L) : isrefl (resrel L P).
-Proof.
-  intros. intro x. apply isl.
-Defined.
-
-Definition issymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : issymm L) : issymm (resrel L P).
-Proof.
-  intros. intros x1 x2 r12. apply isl. apply r12.
-Defined.
-
-Definition isporesrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : ispreorder L) : ispreorder (resrel L P).
-Proof.
-  intros.
-  apply (dirprodpair (istransresrel L P (pr1 isl))
-                     (isreflresrel L P (pr2 isl))).
-Defined.
-
-Definition iseqrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : iseqrel L) : iseqrel (resrel L P).
-Proof.
-  intros.
-  apply (dirprodpair (isporesrel L P (pr1 isl)) (issymmresrel L P (pr2 isl))).
-Defined.
-
-Definition isirreflresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isirrefl L) : isirrefl (resrel L P).
-Proof.
-  intros. intros x r. apply (isl _ r).
-Defined.
-
-Definition isasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isasymm L) : isasymm (resrel L P).
-Proof.
-  intros. intros x1 x2 r12 r21. apply (isl _ _ r12 r21).
-Defined.
-
-Definition iscoasymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : iscoasymm L) : iscoasymm (resrel L P).
-Proof.
-  intros. intros x1 x2 r12. apply (isl _ _ r12).
-Defined.
-
-
-Definition istotalresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : istotal L) : istotal (resrel L P).
-Proof.
-  intros. intros x1 x2. apply isl.
-Defined.
-
-Definition iscotransresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : iscotrans L) : iscotrans (resrel L P).
-Proof.
-  intros. intros x1 x2 x3 r13. apply (isl _ _ _ r13).
-Defined.
-
-Definition isdecrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isdecrel L) : isdecrel (resrel L P).
-Proof.
-  intros. intros x1 x2. apply isl.
-Defined.
-
-Definition isnegrelresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isnegrel L) : isnegrel (resrel L P).
-Proof.
-  intros. intros x1 x2 nnr. apply (isl _ _ nnr).
-Defined.
-
-Definition isantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isantisymm L) : isantisymm (resrel L P).
-Proof.
-  intros. intros x1 x2 r12 r21.
-  apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ r12 r21)).
-Defined.
-
-Definition isantisymmnegresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : isantisymmneg L) : isantisymmneg (resrel L P).
-Proof.
-  intros. intros x1 x2 nr12 nr21.
-  apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ (isl _ _ nr12 nr21)).
-Defined.
-
-Definition iscoantisymmresrel {X : UU} (L : hrel X) (P : hsubtype X)
-           (isl : iscoantisymm L) : iscoantisymm (resrel L P).
-Proof.
-  intros. intros x1 x2 r12. destruct (isl _ _ r12) as [ l | e ].
-  - apply (ii1 l).
-  - apply ii2. apply (invmaponpathsincl _ (isinclpr1carrier _) _ _ e).
-Defined.
-
-Definition  neqchoiceresrel {X : UU} (L : hrel X) (P : hsubtype X)
-            (isl : neqchoice L) : neqchoice (resrel L P).
-Proof.
-  intros. intros x1 x2 ne.
-  set (int := negf (invmaponpathsincl _ (isinclpr1carrier P) _ _) ne).
-  apply (isl _ _ int).
-Defined.
-
-
 
 (** *** Equivalence classes with respect to a given relation *)
 
@@ -1229,7 +717,6 @@ Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
 Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
   isaprop (iseqclass R A).
 Proof.
-intros X R A.
 apply isofhleveldirprod.
 - exact (isapropishinh (carrier A)).
 - apply isofhleveldirprod.
@@ -1283,7 +770,7 @@ Coercion pr1setquot : setquot >-> hsubtype.
 
 Lemma isinclpr1setquot {X : UU} (R : hrel X) : isincl (pr1setquot R).
 Proof.
-  intros X R. apply isinclpr1. intro x0. apply isapropiseqclass.
+  apply isinclpr1. intro x0. apply isapropiseqclass.
 Defined.
 
 Definition setquottouu0 {X : UU} (R : hrel X) (a : setquot R)
@@ -1292,7 +779,6 @@ Coercion setquottouu0 : setquot >-> Sortclass.
 
 Theorem isasetsetquot {X : UU} (R : hrel X) : isaset (setquot R).
 Proof.
-  intros X R.
   apply (isasetsubset (@pr1 _ _) (isasethsubtype X)).
   apply isinclpr1; intro x.
   apply isapropiseqclass.
@@ -1303,22 +789,21 @@ Definition setquotinset {X : UU} (R : hrel X) : hSet :=
 
 Theorem setquotpr {X : UU} (R : eqrel X) : X -> setquot R.
 Proof.
-  intros X R X0.
+  intro x0.
   set (rax := eqrelrefl R).
   set (sax := eqrelsymm R).
   set (tax := eqreltrans R).
-  apply (tpair _ (λ x : X, R X0 x)).
+  apply (tpair _ (λ x : X, R x0 x)).
   split.
-  - exact (hinhpr (tpair _ X0 (rax X0))).
+  - exact (hinhpr (tpair _ x0 (rax x0))).
   - split; intros x1 x2 X1 X2.
-    + exact (tax X0 x1 x2 X2 X1).
-    + exact (tax x1 X0 x2 (sax X0 x1 X1) X2).
+    + exact (tax x0 x1 x2 X2 X1).
+    + exact (tax x1 x0 x2 (sax x0 x1 X1) X2).
 Defined.
 
 Lemma setquotl0 {X : UU} (R : eqrel X) (c : setquot R) (x : c) :
   setquotpr R (pr1 x) = c.
 Proof.
-  intros X R c x.
   apply (invmaponpathsincl _ (isinclpr1setquot R)).
   apply funextsec; intro x0.
   apply hPropUnivalence; intro r.
