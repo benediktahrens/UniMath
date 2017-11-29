@@ -1,9 +1,4 @@
 
-
-(** ** Preamble *)
-
-(** Settings *)
-
 (** Imports *)
 
 Require Export UniMath.Foundations.Propositions.
@@ -31,46 +26,10 @@ Definition setproperty (X : hSet) := pr2 X.
 
 
 
-Lemma isaset_total2_hSet (X : hSet) (Y : X -> hSet) : isaset (∑ x, Y x).
-Proof.
-  intros. apply isaset_total2.
-  - apply setproperty.
-  - intro x. apply setproperty.
-Defined.
 
-
-
-Lemma isaset_forall_hSet (X : UU) (Y : X -> hSet) : isaset (∏ x, Y x).
-Proof.
-  intros. apply impred_isaset. intro x. apply setproperty.
-Defined.
-
-Definition forall_hSet {X : UU} (Y : X -> hSet) : hSet
-  := hSetpair (∏ x, Y x) (isaset_forall_hSet X Y).
-
-Notation "'∏' x .. y , P" := (forall_hSet (λ x,.. (forall_hSet (λ y, P))..))
-  (at level 200, x binder, y binder, right associativity) : set.
-  (* type this in emacs in agda-input method with \sum *)
 
 Definition unitset : hSet := hSetpair unit isasetunit.
 
-
-(** *** [hProp] as a set *)
-
-Definition hPropset : hSet := tpair _ hProp isasethProp.
-(* Canonical Structure hPropset. *)
-
-Definition hProp_to_hSet (P : hProp) : hSet
-  := hSetpair P (isasetaprop (propproperty P)).
-
-Coercion hProp_to_hSet : hProp >-> hSet.
-
-(** *** Booleans as a set *)
-
-Definition boolset : hSet := hSetpair bool isasetbool.
-(* Canonical Structure boolset. *)
-
-(* properties of functions between sets *)
 
 
 
@@ -605,85 +564,6 @@ Definition eqrelsymm {X : UU} (R : eqrel X) : issymm R := pr2 (pr2 R).
 
 
 
-(** *** Direct product of two relations *)
-
-Definition hreldirprod {X Y : UU} (RX : hrel X) (RY : hrel Y) :
-  hrel (X × Y)
-  := λ xy xy' : dirprod X Y, hconj (RX (pr1 xy) (pr1 xy'))
-                                    (RY (pr2 xy) (pr2 xy')).
-
-Definition istransdirprod {X Y : UU} (RX : hrel X) (RY : hrel Y)
-           (isx : istrans RX) (isy : istrans RY) :
-  istrans (hreldirprod RX RY)
-  := λ xy1 xy2 xy3 : _,
-       λ is12 : _ ,
-         λ is23 : _,
-           dirprodpair (isx _ _ _ (pr1 is12) (pr1 is23))
-                       (isy _ _ _ (pr2 is12) (pr2 is23)).
-
-Definition isrefldirprod {X Y : UU} (RX : hrel X) (RY : hrel Y)
-           (isx : isrefl RX) (isy : isrefl RY) : isrefl (hreldirprod RX RY)
-  := λ xy : _, dirprodpair (isx _) (isy _).
-
-Definition issymmdirprod {X Y : UU} (RX : hrel X) (RY : hrel Y)
-           (isx : issymm RX) (isy : issymm RY) : issymm (hreldirprod RX RY)
-  := λ xy1 xy2 : _, λ is12 : _, dirprodpair (isx _ _ (pr1 is12))
-                                              (isy _ _ (pr2 is12)).
-
-Definition eqreldirprod {X Y : UU} (RX : eqrel X) (RY : eqrel Y) :
-  eqrel (X × Y)
-  := eqrelconstr (hreldirprod RX RY)
-                 (istransdirprod _ _ (eqreltrans RX) (eqreltrans RY))
-                 (isrefldirprod  _ _ (eqrelrefl RX) (eqrelrefl RY))
-                 (issymmdirprod  _ _ (eqrelsymm RX) (eqrelsymm RY)).
-
-
-
-(** *** Boolean representation of decidable equality *)
-
-Definition eqh {X : UU} (is : isdeceq X) : hrel X
-  := λ x x', hProppair (booleq is x x' = true)
-                        (isasetbool (booleq is x x') true).
-
-Definition neqh {X : UU} (is : isdeceq X) : hrel X
-  := λ x x', hProppair (booleq is x x' = false)
-                        (isasetbool (booleq is x x') false).
-
-Lemma isrefleqh {X : UU} (is : isdeceq X) : isrefl (eqh is).
-Proof.
-  intros. unfold eqh. unfold booleq.
-  intro x. destruct (is x x) as [ e | ne ].
-  - simpl. apply idpath.
-  - destruct (ne (idpath x)).
-Defined.
-
-Definition weqeqh {X : UU} (is : isdeceq X) (x x' : X) :
-  (x = x') ≃ (eqh is x x').
-Proof.
-  intros. apply weqimplimpl.
-  - intro e. destruct e. apply isrefleqh.
-  - intro e. unfold eqh in e. unfold booleq in e.
-    destruct (is x x') as [ e' | ne' ].
-    + apply e'.
-    + destruct (nopathsfalsetotrue e).
-  - unfold isaprop. unfold isofhlevel. apply (isasetifdeceq X is x x').
-  - unfold eqh. simpl. unfold isaprop. unfold isofhlevel.
-    apply (isasetbool _ true).
-Defined.
-
-Definition weqneqh {X : UU} (is : isdeceq X) (x x' : X) :
-  (x != x') ≃ (neqh is x x').
-Proof.
-  intros. unfold neqh. unfold booleq. apply weqimplimpl.
-  - destruct (is x x') as [ e | ne ].
-    + intro ne. destruct (ne e).
-    + intro ne'. simpl. apply idpath.
-  - destruct (is x x') as [ e | ne ].
-    + intro tf. destruct (nopathstruetofalse tf).
-    + intro. exact ne.
-  - apply (isapropneg).
-  - simpl. unfold isaprop. unfold isofhlevel. apply (isasetbool _ false).
-Defined.
 
 
 
