@@ -3,9 +3,6 @@
 
 Require Export UniMath.Foundations.Propositions.
 
-
-
-
 (** ** The type of sets i.e. of types of h-level 2 in [UU] *)
 
 Definition hSet : UU := total2 (λ X : UU, isaset X).
@@ -22,15 +19,6 @@ Delimit Scope set with set.
 Definition setproperty (X : hSet) := pr2 X.
 
 
-
-
-
-
-
-
-
-
-
 (** ** The type of monic subtypes of a type (subsets of the set of connected components) *)
 
 
@@ -40,16 +28,11 @@ Definition hsubtype (X : UU) : UU := X -> hProp.
 Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
 Definition carrier {X : UU} (A : hsubtype X) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
+
 Definition carrierpair {X : UU} (A : hsubtype X) :
    ∏ t : X, A t → ∑ x : X, A x := tpair A.
 Definition pr1carrier {X : UU} (A : hsubtype X) := @pr1 _ _  : carrier A -> X.
 
-Lemma isaset_carrier_subset (X : hSet) (Y : hsubtype X) : isaset (∑ x, Y x).
-Proof.
-  intros. apply isaset_total2.
-  - apply setproperty.
-  - intro x. apply isasetaprop, propproperty.
-Defined.
 
 
 Delimit Scope subset with subset.
@@ -71,16 +54,6 @@ Definition totalsubtype (X : UU) : hsubtype X := λ x, htrue.
 Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
 Proof.
   apply weqpr1. intro. apply iscontrunit.
-Defined.
-
-Definition weq_subtypes {X Y : UU} (w : X ≃ Y)
-           (S : hsubtype X) (T : hsubtype Y) :
-           (∏ x, S x <-> T (w x)) -> carrier S ≃ carrier T.
-Proof.
-  intros eq. apply (weqbandf w). intro x. apply weqiff.
-  - apply eq.
-  - apply propproperty.
-  - apply propproperty.
 Defined.
 
 
