@@ -3,7 +3,7 @@
 
 Require Export UniMath.Foundations.Propositions.
 
-(** ** The type of sets i.e. of types of h-level 2 in [UU] *)
+(** *The type of sets i.e. of types of h-level 2 in [UU] *)
 
 Definition hSet : UU := total2 (λ X : UU, isaset X).
 Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
@@ -13,13 +13,11 @@ Coercion pr1hSet: hSet >-> UU.
 Definition setproperty (X : hSet) := pr2 X.
 
 
-(** *** General definitions *)
-
+(** * The type of subtypes of a given type *)
 Definition hsubtype (X : UU) : UU := X -> hProp.
 Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
 Definition carrier {X : UU} (A : hsubtype X) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
-
 
 Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
 Proof.
@@ -52,36 +50,35 @@ Defined.
 
 
 
-(** *** Relations and boolean relations *)
+(** * Relations *)
 
 Definition hrel (X : UU) : UU := X -> X -> hProp.
-Identity Coercion idhrel : hrel >-> Funclass.
-
-
-(** *** Standard properties of relations *)
 
 Definition istrans {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 x3 : X), R x1 x2 -> R x2 x3 -> R x1 x3.
-
 Definition isrefl {X : UU} (R : hrel X) : UU
   := ∏ x : X, R x x.
-
 Definition issymm {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 : X), R x1 x2 -> R x2 x1.
 
 Definition ispreorder {X : UU} (R : hrel X) : UU := istrans R × isrefl R.
 
 Definition iseqrel {X : UU} (R : hrel X) := ispreorder R × issymm R.
+
 Definition iseqrelconstr {X : UU} {R : hrel X}
-           (trans0 : istrans R) (refl0 : isrefl R) (symm0 : issymm R) :
-  iseqrel R := dirprodpair (dirprodpair trans0 refl0) symm0.
+           (trans0 : istrans R)
+           (refl0 : isrefl R)
+           (symm0 : issymm R)
+  : iseqrel R
+  := dirprodpair (dirprodpair trans0 refl0) symm0.
 
 
 
 (** *** Eqivalence relations and associated types. *)
 
 Definition eqrel (X : UU) : UU := total2 (λ R : hrel X, iseqrel R).
-Definition eqrelpair {X : UU} (R : hrel X) (is : iseqrel R) : eqrel X
+Definition eqrelpair {X : UU} (R : hrel X) (is : iseqrel R)
+  : eqrel X
   := tpair (λ R : hrel X, iseqrel R) R is.
 Definition eqrelconstr {X : UU} (R : hrel X)
            (is1 : istrans R) (is2 : isrefl R) (is3 : issymm R) : eqrel X
@@ -100,9 +97,12 @@ Definition eqrelsymm {X : UU} (R : eqrel X) : issymm R := pr2 (pr2 R).
 
 
 Definition iseqclass {X : UU} (R : hrel X) (A : hsubtype X) : UU
-  := dirprod (ishinh (carrier A))
-             (dirprod (∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
-                      (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
+  :=
+    (ishinh (carrier A))
+      ×
+      ((∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
+         ×
+         (∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)).
 Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
            (ax0 : ishinh (carrier A))
            (ax1 : ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
@@ -117,6 +117,7 @@ Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X} :
 Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
   iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
   := λ is : iseqclass R A, pr2 (pr2 is).
+
 
 Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
   isaprop (iseqclass R A).
@@ -202,6 +203,7 @@ Proof.
     + exact (tax x1 x0 x2 (sax x0 x1 X1) X2).
 Defined.
 
+
 Lemma setquotl0 {X : UU} (R : eqrel X) (c : setquot R) (x : c) :
   setquotpr R (pr1 x) = c.
 Proof.
@@ -232,7 +234,6 @@ Proof.
   intro r0. apply (eqreltrans R _ _ _ (eqrelsymm R _ _ a) r0).
   intro x0'. apply (eqreltrans R _ _ _ a x0').
 Defined.
-
 
 
 
