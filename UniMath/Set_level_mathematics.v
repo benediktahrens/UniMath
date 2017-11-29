@@ -81,10 +81,6 @@ Defined.
 Definition carrier_subset {X : hSet} (Y : hsubtype X) : hSet
   := hSetpair (∑ x, Y x) (isaset_carrier_subset X Y).
 
-Notation "'∑' x .. y , P"
-  := (carrier_subset (λ x,.. (carrier_subset (λ y, P))..))
-  (at level 200, x binder, y binder, right associativity) : subset.
-  (* type this in emacs in agda-input method with \sum *)
 
 Delimit Scope subset with subset.
 
@@ -117,67 +113,6 @@ Proof.
   - apply propproperty.
 Defined.
 
-(** *** Direct product of two subtypes *)
-
-Definition subtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
-  hsubtype (X × Y) := λ xy : _, hconj (A (pr1 xy)) (B (pr2 xy)).
-
-Definition fromdsubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtype X) (B : hsubtype Y)
-           (xyis : subtypesdirprod A B) : dirprod A B.
-Proof.
-  intros.
-  set (xy := pr1 xyis). set (is := pr2 xyis).
-  set (x := pr1 xy). set (y := pr2 xy).
-  simpl in is. simpl in y.
-  apply (dirprodpair (tpair A x (pr1 is)) (tpair B y (pr2 is))).
-Defined.
-
-Definition tosubtypesdirprodcarrier {X Y : UU}
-           (A : hsubtype X) (B : hsubtype Y)
-           (xisyis : dirprod A B) : subtypesdirprod A B.
-Proof.
-  intros.
-  set (xis := pr1 xisyis). set (yis := pr2 xisyis).
-  set (x := pr1 xis). set (isx := pr2 xis).
-  set (y := pr1 yis). set (isy := pr2 yis).
-  simpl in isx. simpl in isy.
-  apply (tpair (subtypesdirprod A B) (dirprodpair x y) (dirprodpair isx isy)).
-Defined.
-
-Lemma weqsubtypesdirprod {X Y : UU} (A : hsubtype X) (B : hsubtype Y) :
-  subtypesdirprod A B ≃ A × B.
-Proof.
-  intros.
-  set (f := fromdsubtypesdirprodcarrier A B).
-  set (g := tosubtypesdirprodcarrier A B).
-  split with f.
-  assert (egf : ∏ a : _, paths (g (f a)) a).
-  {
-    intro a.
-    destruct a as [ xy is ].
-    destruct xy as [ x y ].
-    destruct is as [ isx isy ].
-    apply idpath.
-  }
-  assert (efg : ∏ a : _, paths (f (g a)) a).
-  {
-    intro a.
-    destruct a as [ xis yis ].
-    destruct xis as [ x isx ].
-    destruct yis as [ y isy ].
-    apply idpath.
-  }
-  apply (gradth _ _ egf efg).
-Defined.
-
-Lemma ishinhsubtypedirprod  {X Y : UU} (A : hsubtype X) (B : hsubtype Y)
-      (isa : ishinh A) (isb : ishinh B) : ishinh (subtypesdirprod A B).
-Proof.
-  intros.
-  apply (hinhfun (invweq (weqsubtypesdirprod A B))).
-  apply hinhand. apply isa. apply isb.
-Defined.
 
 
 
@@ -423,60 +358,6 @@ Proof.
   intros.
   apply (dirprodpair (istranslogeqf lg (pr1 isl)) (isrefllogeqf lg (pr2 isl))).
 Defined.
-
-Definition iseqrellogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iseqrel L) : iseqrel R.
-Proof.
-  intros.
-  apply (dirprodpair (ispologeqf lg (pr1 isl)) (issymmlogeqf lg (pr2 isl))).
-Defined.
-
-Definition isirrefllogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isirrefl L) : isirrefl R.
-Proof.
-  intros. intros x r. apply (isl _ (pr2 (lg x x) r)).
-Defined.
-
-Definition isasymmlogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isasymm L) : isasymm R.
-Proof.
-  intros. intros x1 x2 r12 r21.
-  apply (isl _ _ (pr2 (lg _ _) r12) (pr2 (lg _ _) r21)).
-Defined.
-
-Definition iscoasymmlogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscoasymm L) : iscoasymm R.
-Proof.
-  intros. intros x1 x2 r12.
-  apply ((pr1 (lg _ _)) (isl _ _ (negf (pr1 (lg _ _)) r12))).
-Defined.
-
-Definition istotallogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : istotal L) : istotal R.
-Proof.
-  intros. intros x1 x2. set (int := isl x1 x2).
-  generalize int. clear int. simpl. apply hinhfun.
-  apply (coprodf (pr1 (lg x1 x2)) (pr1 (lg x2 x1))).
-Defined.
-
-Definition iscotranslogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : iscotrans L) : iscotrans R.
-Proof.
-  intros. intros x1 x2 x3 r13.
-  set (int := isl x1 x2 x3 (pr2 (lg _ _) r13)). generalize int.
-  clear int. simpl. apply hinhfun.
-  apply (coprodf (pr1 (lg x1 x2)) (pr1 (lg x2 x3))).
-Defined.
-
-Definition isdecrellogeqf {X : UU} {L R : hrel X}
-           (lg : ∏ x1 x2, L x1 x2 <-> R x1 x2) (isl : isdecrel L) : isdecrel R.
-Proof.
-  intros. intros x1 x2.
-  destruct (isl x1 x2) as [ l | nl ].
-  - apply (ii1 (pr1 (lg _ _) l)).
-  - apply (ii2 (negf (pr2 (lg _ _)) nl)).
-Defined.
-
 
 
 
