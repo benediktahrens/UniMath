@@ -12,8 +12,6 @@ Coercion pr1hSet: hSet >-> UU.
 
 Definition setproperty (X : hSet) := pr2 X.
 
-(** ** The type of monic subtypes of a type (subsets of the set of connected components) *)
-
 
 (** *** General definitions *)
 
@@ -29,16 +27,6 @@ Proof.
   apply impred; intro x.
   exact isasethProp.
 Defined.
-
-(*
-Definition totalsubtype (X : UU) : hsubtype X := λ x, htrue.
-
-Definition weqtotalsubtype (X : UU) : totalsubtype X ≃ X.
-Proof.
-  apply weqpr1. intro. apply iscontrunit.
-Defined.
-*)
-
 
 
 (** *** A subtype with paths between any two elements is an [hProp]. *)
@@ -64,9 +52,6 @@ Defined.
 
 
 
-(** ** Relations on types (or equivalently relations on the sets of connected components) *)
-
-
 (** *** Relations and boolean relations *)
 
 Definition hrel (X : UU) : UU := X -> X -> hProp.
@@ -74,8 +59,6 @@ Identity Coercion idhrel : hrel >-> Funclass.
 
 
 (** *** Standard properties of relations *)
-
-
 
 Definition istrans {X : UU} (R : hrel X) : UU
   := ∏ (x1 x2 x3 : X), R x1 x2 -> R x2 x3 -> R x1 x3.
@@ -92,20 +75,6 @@ Definition iseqrel {X : UU} (R : hrel X) := ispreorder R × issymm R.
 Definition iseqrelconstr {X : UU} {R : hrel X}
            (trans0 : istrans R) (refl0 : isrefl R) (symm0 : issymm R) :
   iseqrel R := dirprodpair (dirprodpair trans0 refl0) symm0.
-
-
-(** proofs that the properties are propositions  *)
-
-Lemma isaprop_istrans {X : hSet} (R : hrel X) : isaprop (istrans R).
-Proof.
-  intros. repeat (apply impred;intro). apply propproperty.
-Defined.
-
-Lemma isaprop_isrefl {X : hSet} (R : hrel X) : isaprop (isrefl R).
-Proof.
-  intros. apply impred; intro. apply propproperty.
-Defined.
-
 
 
 
@@ -243,6 +212,7 @@ Proof.
   - exact (eqax2 (pr2 c) (pr1 x) x0 (pr2 x) r).
 Defined.
 
+(*
 Theorem issurjsetquotpr {X : UU} (R : eqrel X) : issurjective (setquotpr R).
 Proof.
   intros. unfold issurjective.
@@ -252,7 +222,7 @@ Proof.
   - apply setquotl0.
   - apply (eqax0 (pr2 c)).
 Defined.
-
+*)
 Lemma iscompsetquotpr {X : UU} (R : eqrel X) (x x' : X) (a : R x x') :
   setquotpr R x = setquotpr R x'.
 Proof.
