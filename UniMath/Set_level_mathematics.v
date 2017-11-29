@@ -93,19 +93,6 @@ Definition iseqrelconstr {X : UU} {R : hrel X}
            (trans0 : istrans R) (refl0 : isrefl R) (symm0 : issymm R) :
   iseqrel R := dirprodpair (dirprodpair trans0 refl0) symm0.
 
-Definition isirrefl {X : UU} (R : hrel X) : UU := ∏ x : X, ¬ R x x.
-
-
-Definition istotal {X : UU} (R : hrel X) : UU := ∏ x1 x2, R x1 x2 ∨ R x2 x1.
-
-
-
-
-
-
-
-
-
 
 (** proofs that the properties are propositions  *)
 
@@ -118,24 +105,6 @@ Lemma isaprop_isrefl {X : hSet} (R : hrel X) : isaprop (isrefl R).
 Proof.
   intros. apply impred; intro. apply propproperty.
 Defined.
-
-
-
-
-(** the relations on a set form a set *)
-
-Definition isaset_hrel (X : hSet) : isaset (hrel X).
-  intros. unfold hrel.
-  apply impred_isaset; intro x.
-  apply impred_isaset; intro y.
-  exact isasethProp.
-Defined.
-
-
-
-(** *** Standard properties of relations and logical equivalences *)
-
-
 
 
 
@@ -250,9 +219,6 @@ Proof.
   apply isapropiseqclass.
 Defined.
 
-Definition setquotinset {X : UU} (R : hrel X) : hSet :=
-  hSetpair _ (isasetsetquot R).
-
 Theorem setquotpr {X : UU} (R : eqrel X) : X -> setquot R.
 Proof.
   intro x0.
@@ -306,7 +272,6 @@ Defined.
 
 Definition iscomprelfun {X Y : UU} (R : hrel X) (f : X -> Y) : UU
   := ∏ x x' : X, R x x' -> f x = f x'.
-
 
 Lemma isapropimeqclass {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
       (is : iscomprelfun R f) (c : setquot R) :
@@ -365,8 +330,5 @@ Proof.
   - apply (pr2 (R x x')).
   - set (int := isasetsetquot R (setquotpr R x) (setquotpr R x')). assumption.
 Defined.
-
-
-
 
 (* End of the file Set_level_mathematics.v *)
