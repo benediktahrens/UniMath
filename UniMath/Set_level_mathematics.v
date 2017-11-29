@@ -10,10 +10,7 @@ Definition hSetpair (X : UU) (i : isaset X) := tpair isaset X i : hSet.
 Definition pr1hSet : hSet -> UU := @pr1 UU (λ X : UU, isaset X).
 Coercion pr1hSet: hSet >-> UU.
 
-Delimit Scope set with set.
-
 Definition setproperty (X : hSet) := pr2 X.
-
 
 (** ** The type of monic subtypes of a type (subsets of the set of connected components) *)
 
@@ -24,11 +21,6 @@ Definition hsubtype (X : UU) : UU := X -> hProp.
 Identity Coercion id_hsubtype :  hsubtype >-> Funclass.
 Definition carrier {X : UU} (A : hsubtype X) := total2 A.
 Coercion carrier : hsubtype >-> Sortclass.
-
-
-
-
-Delimit Scope subset with subset.
 
 
 Lemma isasethsubtype (X : UU) : isaset (hsubtype X).
@@ -70,57 +62,6 @@ Proof.
   apply (is x0 x0' is0 is0').
 Defined.
 
-Definition squash_pairs_to_set {Y : UU} (F : Y -> UU) :
-  (isaset Y) -> (∏ y y', F y -> F y' -> y = y') -> (∃ y, F y) -> Y.
-Proof.
-  intros is e.
-  set (P := ∑ y, ∥ F y ∥).
-  assert (iP : isaprop P).
-  {
-    apply isapropsubtype. intros y y' f f'.
-    apply (squash_to_prop f). apply is. clear f; intro f.
-    apply (squash_to_prop f'). apply is. clear f'; intro f'.
-    apply e.
-    - assumption.
-    - assumption.
-  }
-  intros w.
-  assert (p : P).
-  {
-    apply (squash_to_prop w). exact iP. clear w; intro w.
-    exact (pr1 w,,hinhpr (pr2 w)).
-  }
-  clear w.
-  exact (pr1 p).
-Defined.
-
-Definition squash_to_set {X Y : UU} (is : isaset Y) (f : X -> Y) :
-          (∏ x x', f x = f x') -> ∥ X ∥ -> Y.
-Proof.
-  intros e w.
-  set (P := ∑ y, ∃ x, f x = y).
-  assert (j : isaprop P).
-  {
-    apply isapropsubtype; intros y y' j j'.
-    apply (squash_to_prop j). apply is. clear j; intros [j k].
-    apply (squash_to_prop j'). apply is. clear j'; intros [j' k'].
-    intermediate_path (f j). exact (!k).
-    intermediate_path (f j'). apply e. exact k'.
-  }
-  assert (p : P).
-  {
-    apply (squash_to_prop w). exact j. intro x0.
-    exists (f x0). apply hinhpr. exists x0. apply idpath.
-  }
-  exact (pr1 p).
-Defined.
-
-(* End of "the type of monic subtypes of a type". *)
-
-
-
-
-
 
 
 (** ** Relations on types (or equivalently relations on the sets of connected components) *)
@@ -131,8 +72,6 @@ Defined.
 Definition hrel (X : UU) : UU := X -> X -> hProp.
 Identity Coercion idhrel : hrel >-> Funclass.
 
-Definition brel (X : UU) : UU := X -> X -> bool.
-Identity Coercion idbrel : brel >-> Funclass.
 
 (** *** Standard properties of relations *)
 
@@ -409,7 +348,7 @@ Lemma isapropimeqclass {X : UU} (R : hrel X) (Y : hSet) (f : X -> Y)
       (is : iscomprelfun R f) (c : setquot R) :
   isaprop (image (λ x : c, f (pr1 x))).
 Proof.
-  intros. apply isapropsubtype.
+  apply isapropsubtype.
   intros y1 y2. simpl.
   apply (@hinhuniv2 _ _ (hProppair (y1 = y2) (pr2 Y y1 y2))).
   intros x1 x2. simpl.
@@ -466,4 +405,4 @@ Defined.
 
 
 
-(* End of the file hSet.v *)
+(* End of the file Set_level_mathematics.v *)
