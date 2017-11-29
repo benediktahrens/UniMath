@@ -17,18 +17,9 @@ Definition eqset {X : hSet} (x x' : X) : hProp
   := hProppair (x = x') (pr2 X x x').
 Notation "a = b" := (eqset a b) (at level 70, no associativity) : set.
 
-Definition neqset {X : hSet} (x x' : X) : hProp
-  := hProppair (x != x') (isapropneg _). (* uses funextemptyAxiom *)
-Notation "a != b" := (neqset a b) (at level 70, no associativity) : set.
 Delimit Scope set with set.
 
 Definition setproperty (X : hSet) := pr2 X.
-
-
-
-
-
-Definition unitset : hSet := hSetpair unit isasetunit.
 
 
 
