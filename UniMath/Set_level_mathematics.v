@@ -76,13 +76,15 @@ Definition iseqrelconstr {X : UU} {R : hrel X}
 
 (** *** Eqivalence relations and associated types. *)
 
-Definition eqrel (X : UU) : UU := total2 (λ R : hrel X, iseqrel R).
+Definition eqrel (X : UU) : UU
+  := ∑ R : hrel X, iseqrel R.
 Definition eqrelpair {X : UU} (R : hrel X) (is : iseqrel R)
   : eqrel X
   := tpair (λ R : hrel X, iseqrel R) R is.
 Definition eqrelconstr {X : UU} (R : hrel X)
            (is1 : istrans R) (is2 : isrefl R) (is3 : issymm R) : eqrel X
   := eqrelpair R (dirprodpair (dirprodpair is1 is2) is3).
+
 Definition pr1eqrel (X : UU) : eqrel X -> (X -> (X -> hProp)) := @pr1 _ _.
 Coercion pr1eqrel : eqrel >-> Funclass.
 
@@ -106,35 +108,32 @@ Definition iseqclass {X : UU} (R : hrel X) (A : hsubtype X) : UU
 Definition iseqclassconstr {X : UU} (R : hrel X) {A : hsubtype X}
            (ax0 : ishinh (carrier A))
            (ax1 : ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2)
-           (ax2 : ∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2) : iseqclass R A
+           (ax2 : ∏ x1 x2 : X, A x1 ->  A x2 -> R x1 x2)
+  : iseqclass R A
   := dirprodpair ax0 (dirprodpair ax1 ax2).
 
-Definition eqax0 {X : UU} {R : hrel X} {A : hsubtype X} :
-  iseqclass R A -> ishinh (carrier A) := λ is : iseqclass R A, pr1 is.
-Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X} :
-  iseqclass R A -> ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2
+Definition eqax0 {X : UU} {R : hrel X} {A : hsubtype X}
+  : iseqclass R A -> ishinh (carrier A)
+  := λ is : iseqclass R A, pr1 is.
+Definition eqax1 {X : UU} {R : hrel X} {A : hsubtype X}
+  : iseqclass R A -> ∏ x1 x2 : X, R x1 x2 -> A x1 -> A x2
   := λ is : iseqclass R A, pr1 (pr2 is).
-Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X} :
-  iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
+Definition eqax2 {X : UU} {R : hrel X} {A : hsubtype X}
+  : iseqclass R A -> ∏ x1 x2 : X, A x1 -> A x2 -> R x1 x2
   := λ is : iseqclass R A, pr2 (pr2 is).
 
 
-Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X) :
-  isaprop (iseqclass R A).
+Lemma isapropiseqclass {X : UU} (R : hrel X) (A : hsubtype X)
+  : isaprop (iseqclass R A).
 Proof.
-apply isofhleveldirprod.
-- exact (isapropishinh (carrier A)).
-- apply isofhleveldirprod.
-  + repeat (apply impred; intro).
-    exact (pr2 (A t0)).
-  + repeat (apply impred; intro).
-    exact (pr2 (R t t0)).
+  apply isofhleveldirprod.
+  - exact (isapropishinh (carrier A)).
+  - apply isofhleveldirprod.
+    + repeat (apply impred; intro).
+      exact (pr2 (A t0)).
+    + repeat (apply impred; intro).
+      exact (pr2 (R t t0)).
 Defined.
-
-
-
-
-
 
 
 
@@ -166,10 +165,13 @@ be considered in the section about types of h-level 3.
 
 
 Definition setquot {X : UU} (R : hrel X) : UU
-  := total2 (λ A : _, iseqclass R A).
+  := ∑ A : hsubtype X, iseqclass R A.
 Definition setquotpair {X : UU} (R : hrel X) (A : hsubtype X)
-           (is : iseqclass R A) : setquot R := tpair _ A is.
-Definition pr1setquot {X : UU} (R : hrel X) : setquot R -> (hsubtype X)
+           (is : iseqclass R A)
+  : setquot R
+  := A ,, is.
+Definition pr1setquot {X : UU} (R : hrel X)
+  : setquot R -> (hsubtype X)
   := @pr1 _ (λ A : _, iseqclass R A).
 Coercion pr1setquot : setquot >-> hsubtype.
 
@@ -191,16 +193,16 @@ Defined.
 
 Theorem setquotpr {X : UU} (R : eqrel X) : X -> setquot R.
 Proof.
-  intro x0.
+  intro x.
   set (rax := eqrelrefl R).
   set (sax := eqrelsymm R).
   set (tax := eqreltrans R).
-  apply (tpair _ (λ x : X, R x0 x)).
+  apply (tpair _ (λ x0 : X, R x x0)).
   split.
-  - exact (hinhpr (tpair _ x0 (rax x0))).
+  - exact (hinhpr (tpair _ x (rax x))).
   - split; intros x1 x2 X1 X2.
-    + exact (tax x0 x1 x2 X2 X1).
-    + exact (tax x1 x0 x2 (sax x0 x1 X1) X2).
+    + exact (tax x x1 x2 X2 X1).
+    + exact (tax x1 x x2 (sax x x1 X1) X2).
 Defined.
 
 
