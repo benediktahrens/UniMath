@@ -45,3 +45,33 @@ Proof.
   induction e.
   apply idpath.
 Defined.
+
+Definition paths_comp {A : UU} {a b c : A}
+  : a = b → b = c → a = c.
+Proof.
+  intros e e'.
+  induction e. exact e'.
+  (* or
+     induction e'. exact e.
+     or
+     induction e. induction e'. apply idpath.
+   *)
+Defined.
+
+Notation " e @ e' " := (paths_comp e e').
+
+Definition paths_comp_id_1 {A : UU} {a c : A}
+           (e' : a = c)
+  : idpath a @ e' = e'.
+Proof.
+  apply idpath.
+Defined.
+
+Definition paths_comp_id_2 {A : UU} {a c : A}
+           (e : a = c)
+  : e @ idpath c = e.
+Proof.
+  Fail apply idpath.
+  induction e.
+  apply idpath.
+Defined.
