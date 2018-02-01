@@ -1,4 +1,5 @@
 Require Import UniMath.Foundations.Preamble.
+Require Import UniMath.Foundations.PartA.
 
 Check (λ m n : nat, m = n).
 
@@ -6,6 +7,19 @@ Check (λ (A : UU) (a a' : A), a = a').
 
 Check (λ (A : UU) (a : A), idpath a).
 Check @idpath.
+
+
+Definition transport {A : UU} (B : A → UU) :
+  ∏ (a b : A), B a × (a = b) → B b.
+Proof.
+  intros a b.
+  intro pe.
+  induction pe as [p e].
+  induction e.
+  exact p.
+Defined.
+
+(* Define equivalences and define idtoeqv *)
 
 Definition path_inv (A : UU) (a b : A) : a = b → b = a.
 Proof.
@@ -32,6 +46,7 @@ Proof.
   induction e.
   apply p.
 Defined.
+
 
 Definition is_contractible (A : UU) : UU
   := ∑ (a : A), ∏ (a' : A), a' = a.
