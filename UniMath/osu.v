@@ -14,14 +14,15 @@ Definition transport {A : UU} (B : A → UU) :
 Proof.
   intros a b.
   intro pe.
-  induction pe as [p e].
+  induction pe as [x e].
   induction e.
-  exact p.
+  exact x.
 Defined.
-
+Print transport.
+Check paths_rect.
 (* Define equivalences and define idtoeqv *)
 
-Definition path_inv (A : UU) (a b : A) : a = b → b = a.
+Definition path_inv (A : UU) (a b : A) :  a = b →  b = a.
 Proof.
   intro e.
   induction e.
@@ -55,8 +56,8 @@ Lemma is_contractible_cone (A : UU) (a : A)
   : is_contractible (∑ a' : A, a' = a).
 Proof.
   exists (a,, idpath a : ∑ a' : A, a' = a).
-  intro a'e.
-  induction a'e as [a' e].
+  intro ae.
+  induction ae as [a' e].
   induction e.
   apply idpath.
 Defined.
