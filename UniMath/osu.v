@@ -91,3 +91,28 @@ Proof.
   induction e.
   apply idpath.
 Defined.
+
+Definition is_equiv {A B : UU} (f : A → B)
+  : UU
+  := ∏ b, is_contractible (∑ a : A, f a = b).
+
+Definition equiv (A B : UU) : UU := ∑ f : A → B, is_equiv f.
+
+Definition is_equiv_id (A : UU) : is_equiv (idfun A).
+Proof.
+  unfold is_equiv.
+  intro a.
+  unfold idfun.
+  apply is_contractible_cone.
+Defined.
+
+Definition equiv_id (A : UU) : equiv A A := (idfun A,, is_equiv_id A).
+
+Definition id_to_equiv (A B : UU) : A = B → equiv A B.
+Proof.
+  intro e.
+  induction e.
+  apply equiv_id.
+Defined.
+
+Definition univalence_statement : UU := ∏ (A B : UU), is_equiv (id_to_equiv A B).
