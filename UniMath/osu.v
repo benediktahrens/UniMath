@@ -20,7 +20,6 @@ Proof.
 Defined.
 Print transport.
 Check paths_rect.
-(* Define equivalences and define idtoeqv *)
 
 Definition path_inv (A : UU) (a b : A) :  a = b →  b = a.
 Proof.
@@ -116,3 +115,15 @@ Proof.
 Defined.
 
 Definition univalence_statement : UU := ∏ (A B : UU), is_equiv (id_to_equiv A B).
+
+
+
+Require Import UniMath.Foundations.All.
+
+Search ( ( _ = _ ) ≃ _ ).
+
+Check @weqtoforallpaths.
+Print weqtoforallpathsStatement.
+Print Assumptions weqtoforallpaths.
+
+Check @total2_paths_equiv.
