@@ -1,100 +1,158 @@
 
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Core.Prelude.
+
+Open Scope cat.
+
+Print precategory_ob_mor.
 
 
-Definition SigLevel : UU
-  := ∑ (X : UU)
-       (hom : X -> X -> UU)
-       (comp : ∏ x y z : X, hom x y -> hom y z -> hom x z)
-       (id : ∏ x, hom x x),
-     (∏ w x y z (f : hom w x) (g : hom x y) (h : hom y z),
-      comp _ _ _ (comp _ _ _ f g) h = comp _ _ _ f (comp _ _ _ g h))
-       ×
-       (∏ x y (f : hom x y), comp _ _ _ f (id _ ) = f)
-       ×
-       (∏ x y (f : hom x y), comp _ _ _ (id _ ) f = f).
+
+
+Notation "'SigLevel'" := precategory (at level 0).
 
 Definition SigSystem : nat -> SigLevel.
 Proof.
   induction 1 as [ | n].
-  - use tpair; [ | use tpair ; [|use tpair ; [ | use tpair] ]].
-    + exact UU.
-    + intros X Y. exact (X -> Y).
-    + cbn. intros X Y Z f g. exact (funcomp f g).
-    + cbn. exact idfun.
-    + abstract (repeat split).
-  - set (obSig := pr1 IHn).
+  - use mk_precategory.
+    + use tpair.
+      *  use tpair.
+         -- exact UU.
+         -- intros X Y. exact (X -> Y).
+      * use tpair.
+        -- cbn. exact idfun.
+        -- cbn. intros X Y Z f g. exact (funcomp f g).
+    +  abstract (repeat split).
+  -
+    (*
+    set (obSig := pr1 IHn).
     set (homSig := pr1 (pr2 IHn)).
     set (compSig := pr1 (pr2 (pr2 IHn))).
     set (idSig := pr1 (pr2 (pr2 (pr2 IHn)))).
     set (assocSig := pr1 (pr2 (pr2 (pr2 (pr2 IHn))))).
     set (idrSig := pr1 (pr2 (pr2 (pr2 (pr2 (pr2 IHn)))))).
     set (idlSig := pr2 (pr2 (pr2 (pr2 (pr2 (pr2 IHn)))))).
-    use tpair; [ | use tpair ; [|use tpair ; [ | use tpair] ]].
-    + exact (∑ (Z : UU)
-               (D : (Z -> UU) -> obSig),
-             ∏ (M N : Z -> UU), (∏ z, M z -> N z) -> homSig (D M) (D N)).
-    + intros [Z1 [D1 F1]] [Z2 [D2 F2]].
-      exact (∑ (ζ : Z1 -> Z2)
-               (δ : ∏ M : Z2 -> UU, homSig (D1 (funcomp ζ M)) (D2 M)),
-             ∏ (M N : Z2 -> UU) (α : ∏ z : Z2, M z -> N z),
-             ∥compSig _ _ _ (δ M) (F2 M N α) = compSig _ _ _ (F1 _ _ (λ z : Z1, α (ζ z))) (δ N)∥).
-    +
-      intros [Z1 [D1 F1]] [Z2 [D2 F2]] [Z3 [D3 F3]];
-      intros [ζ1 [δ1 φ1]] [ζ2 [δ2 φ2]];
-      repeat use tpair;
-      [
-        exact (funcomp ζ1 ζ2)
-      |
-      intro M; exact (compSig _ _ _ (δ1 _ ) (δ2 _ ))
-      |
-      abstract (
-          intros M N α;
-          set (phi2 := φ2 _ _ α);
-          use (squash_to_prop phi2);
-          [ apply propproperty |];
-          clear phi2; intro phi2;
-          set (phi1 := φ1 _ _ (λ z : Z2, α (ζ2 z)));
-          use (squash_to_prop phi1);
-          [ apply propproperty |];
-          clear phi1; intro phi1;
-          apply hinhpr;
-          etrans; [apply assocSig |];
-          etrans; [apply maponpaths; apply phi2 |];
-          etrans; [apply (!assocSig _ _ _ _ _ _ _ ) |];
-          etrans; [apply maponpaths_2; apply phi1 |];
-          apply assocSig
-        )
-      ]
-        .
-    +
-      intros [Z1 [D1 F1]];
-        repeat use tpair ;
-        [
-          exact (idfun _ )
-        |
-        intro M; exact (idSig _ )
-        |
-        abstract (
-            intros M N α;
-            apply hinhpr;
-            etrans; [ apply idlSig |];
-            apply (!idrSig _ _ _ )
-          )
-        ]
-        .
-    + intros;
-      repeat split.
+     *)
+
+    use mk_precategory_one_assoc.
+    + use tpair.
+      * use tpair.
+        -- exact (∑ (Z : UU)
+                    (D : (Z -> UU) -> ob IHn),
+                  ∏ (M N : Z -> UU), (∏ z, M z -> N z) ->  IHn ⟦(D M), (D N) ⟧).
+        -- intros A B.
+           set (Z1 := pr1 A).
+           set (D1 := pr12 A).
+           set (F1 := pr22 A).
+           set (Z2 := pr1 B).
+           set (D2 := pr12 B).
+           set (F2 := pr22 B).
+           exact (∑ (ζ : Z1 -> Z2)
+                    (δ : ∏ M : Z2 -> UU, IHn ⟦(D1 (funcomp ζ M)), (D2 M) ⟧),
+                  ∏ (M N : Z2 -> UU) (α : ∏ z : Z2, M z -> N z),
+                  ∥compose (δ M) (F2 M N α) = compose  (F1 _ _ (λ z : Z1, α (ζ z))) (δ N)∥).
+      * use tpair.
+        -- intro A;
+             repeat use tpair ;
+             [
+               exact (idfun _ )
+             |
+             intro M; exact (identity _ )
+             |
+             abstract (
+                 intros M N α;
+                 apply hinhpr;
+                 etrans; [ apply id_left |];
+                 apply (!id_right _  )
+               )
+             ]
+           .
+        -- intros A B C.
+           intros [ζ1 [δ1 φ1]] [ζ2 [δ2 φ2]];
+           repeat use tpair;
+             [
+               exact (funcomp ζ1 ζ2)
+             |
+               intro M; exact (compose (δ1 _ ) (δ2 _ ))
+             |
+               abstract (
+                   intros M N α;
+                   set (phi2 := φ2 _ _ α);
+                   use (squash_to_prop phi2);
+                   [ apply propproperty |];
+                   clear phi2; intro phi2;
+                   set (phi1 := φ1 _ _ (λ z : _, α (ζ2 z)));
+                   use (squash_to_prop phi1);
+                   [ apply propproperty |];
+                   clear phi1; intro phi1;
+                   apply hinhpr;
+                   etrans; [apply (!assoc (C:=IHn) _ _ _ ) |];
+                   etrans; [apply maponpaths; apply phi2 |];
+                   etrans; [apply (assoc _ _ _  ) |];
+                   etrans; [apply maponpaths_2; apply phi1 |];
+                   apply (! (assoc _ _ _ ))
+                 )
+             ]
+           .
+    + intros; repeat split.
+      * abstract (
+            intros A B;
+            intros [ζ1 [δ1 φ1]];
+            use total2_paths2_f;
+            [
+              apply idpath
+            |
+            apply subtypeEquality;
+            [
+              intro x;
+              apply impred; intro t;
+              apply impred; intro tt;
+              apply impred; intro ttt;
+              apply propproperty
+            |
+            cbn;
+            apply funextsec;
+            intro M;
+            apply id_left
+            ]
+            ]
+          ).
       *
         abstract (
-        intros [Z1 [D1 F1]] [Z2 [D2 F2]] [Z3 [D3 F3]] [Z4 [D4 F4]];
-        intros [ζ1 [δ1 φ1]] [ζ2 [δ2 φ2]] [ζ3 [δ3 φ3]];
-        use total2_paths2_f;
-        [
-          apply idpath
-        |
-        apply subtypeEquality;
+            intros A B ;
+            intros [ζ1 [δ1 φ1]];
+            use total2_paths2_f;
+            [
+              apply idpath
+            |
+            abstract (
+                apply subtypeEquality;
+                [
+                  intro x;
+                  apply impred; intro t;
+                  apply impred; intro tt;
+                  apply impred; intro ttt;
+                  apply propproperty
+          |
+
+          cbn;
+          apply funextsec;
+          intro M;
+          apply id_right
+             ]
+              )
+            ]
+          ).
+      *
+        abstract (
+            intros A B C D;
+            intros [ζ1 [δ1 φ1]] [ζ2 [δ2 φ2]] [ζ3 [δ3 φ3]];
+            use total2_paths2_f;
+            [
+              apply idpath
+            |
+            apply subtypeEquality;
            [
              intro x;
               apply impred; intro t;
@@ -105,59 +163,8 @@ Proof.
            cbn;
            apply funextsec;
            intro M;
-           apply assocSig
+           apply (assoc _ _ _ )
            ]
-        ]
-          ).
-
-      *
-        abstract (
-        intros [Z1 [D1 F1]] [Z2 [D2 F2]];
-        intros [ζ1 [δ1 φ1]];
-        use total2_paths2_f;
-        [
-          apply idpath
-        |
-          apply subtypeEquality;
-          [
-            intro x;
-            apply impred; intro t;
-            apply impred; intro tt;
-            apply impred; intro ttt;
-            apply propproperty
-          |
-          cbn;
-          apply funextsec;
-          intro M;
-          apply idrSig
-          ]
-        ]
-          ).
-      *
-        abstract (
-        intros [Z1 [D1 F1]] [Z2 [D2 F2]] ;
-        intros [ζ1 [δ1 φ1]];
-        use total2_paths2_f;
-        [
-          apply idpath
-        |
-        abstract (
-          apply subtypeEquality;
-             [
-
-               intro x;
-               apply impred; intro t;
-               apply impred; intro tt;
-               apply impred; intro ttt;
-               apply propproperty
-             |
-
-             cbn;
-             apply funextsec;
-             intro M;
-             apply idlSig
-             ]
-          )
         ]
           ).
 Defined.
@@ -172,7 +179,9 @@ Proof.
   induction n.
   - intro L.
     exact (L -> UU).
-  - intros [Z [D F]].
+  - intro A.
+    set (Z := pr1 A).
+      [Z [D F]].
     exact (∑ (M : Z -> UU), IHn (D M)).
 Defined.
 
