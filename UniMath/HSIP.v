@@ -2,7 +2,7 @@
 Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
-
+Require Import UniMath.CategoryTheory.categories.Types.
 Open Scope cat.
 
 Print precategory_ob_mor.
@@ -15,15 +15,7 @@ Notation "'SigLevel'" := precategory (at level 0).
 Definition SigSystem : nat -> SigLevel.
 Proof.
   induction 1 as [ | n].
-  - use mk_precategory.
-    + use tpair.
-      *  use tpair.
-         -- exact UU.
-         -- intros X Y. exact (X -> Y).
-      * use tpair.
-        -- cbn. exact idfun.
-        -- cbn. intros X Y Z f g. exact (funcomp f g).
-    +  abstract (repeat split).
+  - exact type_precat.
   -
     (*
     set (obSig := pr1 IHn).
