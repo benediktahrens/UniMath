@@ -26,6 +26,25 @@ Qed.
 Definition fam_precat (X : UU) : precategory
   := _ ,, is_precategory_fam_precat_data X.
 
+
+Definition fam_functor_data {X Y : UU} (f : X -> Y)
+  : functor_data (fam_precat_data Y) (fam_precat_data X).
+Proof.
+  use tpair.
+  - cbn. intros r x. exact (r (f x)).
+  - cbn. intros r s α x. exact (α (f x)).
+Defined.
+
+Lemma is_functor_fam_functor_data {X Y : UU} (f : X -> Y)
+  : is_functor (fam_functor_data f).
+Proof.
+  split; [ intro a | intros a b c r s]; apply idpath.
+Qed.
+
+Definition fam_functor {X Y : UU} (f : X -> Y)
+  : functor (fam_precat Y) (fam_precat X)
+  := _ ,, is_functor_fam_functor_data f.
+
 (*
 Definition catcat_data (D : precategory_data) : precategory_data.
 Proof.
@@ -51,24 +70,39 @@ Proof.
            set (D1 := pr2 A).
            set (Z2 := pr1 B).
            set (D2 := pr2 B).
+           cbn in *.
            exact (∑ (ζ : Z1 -> Z2),
-                    ( ∏ M : Z2 -> UU, IHn ⟦(D1 (funcomp ζ M)), (D2 M) ⟧)).
+                  nat_trans (functor_composite (fam_functor ζ) D1) D2).
       * split; cbn in *.
         -- intros [X F]; cbn.
            exists (idfun _ ).
-           intros. exact (identity _ ).
+           intros. exact (nat_trans_id _ ).
         -- intros [X1 F1] [X2 F2] [X3 F3] [ζ1 f1] [ζ2 f2].
            cbn in *.
            exists (funcomp ζ1 ζ2).
-           intro M.
-           use ( _ · f2 _ ).
-           apply (f1 (funcomp ζ2 M)).
+           use (nat_trans_comp _ _ _ _ f2).
+           use mk_nat_trans.
+           ++ intro M.
+              apply (f1 (funcomp ζ2 M)).
+           ++ cbn. intros a b f. cbn.
+              set (XX:= nat_trans_ax f1).
+              cbn in XX.
+              set (YY:= nat_trans_ax f2).
+              cbn in YY.
+              apply (XX _ _ (λ x : X2, f (ζ2 x))).
     + repeat split.
       * cbn. intros a b [f fh].
         use total2_paths2_f.
         -- apply idpath.
-        -- apply funextsec.
+        -- use total2_paths2_f.
+           cbn.
+           apply funextsec.
            intro. apply id_left.
+           cbn.
+           Search (transportf _ _ _ = _ ).
+           set (X:= @transportf_funextfun).
+
+           etrans. apply transportf_funextfun.
       * cbn. intros a b [f fh].
         use total2_paths2_f.
         -- apply idpath.
