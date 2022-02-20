@@ -17,9 +17,12 @@ Contents:
 *)
 
 
-Require Import UniMath.Foundations.Sets.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Categories.
+Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Functors.
+Require Import UniMath.CategoryTheory.categories.StandardCategories.
 
 Local Open Scope cat.
 
@@ -40,13 +43,14 @@ Section Dirprod_utils.
 
 (* TODO: check library more thoroughly in case these are already provided. *)
 
-(** Compare [pathsdirprod]. *)
-Definition dirprod_paths {A B : UU} {p q : A × B}
+  (** Compare [pathsdirprod]. *)
+(*Definition dirprod_paths {A B : UU} {p q : A × B}
   : pr1 p = pr1 q -> pr2 p = pr2 q -> p = q.
 Proof.
   destruct p as [a b], q as [a' b']; apply pathsdirprod.
 Defined.
-
+ *)
+  Search ( ((_ × _) × _ ) → _ ).
 (** Compare [total2asstol]. *)
 Definition dirprod_assoc {C0 C1 C2 : UU}
   : (C0 × (C1 × C2)) -> ((C0 × C1) × C2).
@@ -54,14 +58,17 @@ Proof.
   intros c. exact ((pr1 c ,, (pr1 (pr2 c))) ,, pr2 (pr2 c)).
 Defined.
 
-(** Identical to [dirprodf]. *)
+  (** Identical to [dirprodf]. *)
+  (*
 Definition dirprod_maps {A0 A1 B0 B1} (f0 : A0 -> B0) (f1 : A1 -> B1)
   : A0 × A1 -> B0 × B1.
 Proof.
   intros aa. exact (f0 (pr1 aa),, f1 (pr2 aa)).
 Defined.
+   *)
 
-(** Compare [prodtofuntoprod]. *)
+  (** Compare [prodtofuntoprod]. *)
+  Search (_ → (_ × _)).
 Definition dirprod_pair_maps {A B0 B1} (f0 : A -> B0) (f1 : A -> B1)
   : A -> B0 × B1.
 Proof.
@@ -78,6 +85,8 @@ Section category_products.
 
 (* TODO: use versions from [CategoryTheory] instead. *)
 
+  (** Use "unit_category" from categories/StandardCategories instead *)
+  (*
 Definition unit_precategory : precategory.
 Proof.
   use tpair. use tpair.
@@ -85,8 +94,11 @@ Proof.
   (* identity, comp *) split; intros; constructor.
   (* id_left *) simpl; split; try split; intros; apply isProofIrrelevantUnit.
 Defined.
+   *)
 
-Definition unit_functor C : functor C unit_precategory.
+  (* Use functor_to_unit from StandardCategories instead *)
+  (*
+Definition unit_functor (C : category) : functor C unit_category.
 Proof.
   use tpair. use tpair.
   (* functor_on_objects *) intros; exact tt.
@@ -95,9 +107,11 @@ Proof.
   (* functor_id *) intros x; apply paths_refl.
   (* functor_comp *) intros x y z w v; apply paths_refl.
 Defined.
-
+*)
 (* TODO: perhaps generalise to constant functors? *)
-Definition ob_as_functor {C : precategory} (c : C) : functor unit_precategory C.
+  (* Core/Functors.v:Definition constant_functor: functor C D := tpair _ _ is_functor_constant.*)
+  (*
+Definition ob_as_functor {C : precategory} (c : C) : functor unit_category C.
 Proof.
   use tpair. use tpair.
   (* functor_on_objects *) intros; exact c.
@@ -106,20 +120,27 @@ Proof.
   (* functor_id *) intros;  constructor.
   (* functor_comp *) intros x y z w v; simpl. apply pathsinv0, id_left.
 Defined.
+   *)
 
+
+
+  (*
 Definition prod_precategory_ob_mor (C D : precategory) : precategory_ob_mor.
   (* ob *) exists (C × D).
   (* mor *) intros a b. use (_ × _).
     exact ((pr1 a) --> (pr1 b)). exact ((pr2 a) --> (pr2 b)).
 Defined.
+*)
 
+  (*
 Definition prod_precategory_data (C D : precategory) : precategory_data.
   exists (prod_precategory_ob_mor C D); split.
   (* identity *) split; apply identity.
   (* comp *) intros a b c f g.
     exact ((pr1 f · pr1 g) ,, (pr2 f · pr2 g)).
 Defined.
-
+   *)
+  (*
 Definition prod_precategory_is_precategory (C D : precategory)
   : is_precategory (prod_precategory_data C D).
 Proof.
@@ -129,7 +150,8 @@ Proof.
   (* assoc *) apply dirprod_paths; simpl; apply assoc.
   (* assoc' *) apply dirprod_paths; simpl; apply assoc'.
 Defined.
-
+   *)
+  (*
 Definition prod_precategory (C D : precategory) : precategory
   := (_ ,, prod_precategory_is_precategory C D).
 
@@ -138,12 +160,15 @@ Definition prod_precategory_homsets (C D : category)
 Proof.
   intros x y. apply isaset_dirprod; apply homset_property.
 Qed.
-
+   *)
+  (*
 Definition prod_category (C D : category) : category
   := (prod_precategory C D,, prod_precategory_homsets C D).
-
+   *)
+  (*
 Arguments prod_precategory (_ _)%cat.
-
+   *)
+  (*
 Local Notation "C × D" := (prod_category C D) (at level 75, right associativity) : cat.
 
 Definition prod_category_assoc_data (C0 C1 C2 : category)
@@ -165,9 +190,9 @@ Definition prod_functor_data {C0 C1 D0 D1 : category}
   (F0 : functor C0 D0) (F1 : functor C1 D1)
 : functor_data (C0 × C1) (D0 × D1).
 Proof.
-  (* functor_on_objects *) exists (dirprod_maps F0 F1).
+  (* functor_on_objects *) exists (dirprodf F0 F1).
   (* functor_on_morphisms *) intros a b.
-    apply dirprod_maps; apply functor_on_morphisms.
+    apply dirprodf; apply functor_on_morphisms.
 Defined.
 
 Definition prod_functor {C0 C1 D0 D1 : category}
@@ -198,12 +223,15 @@ Proof.
   (* functor_comp *) intros c0 c1 c2 f g.
     apply dirprod_paths; apply functor_comp.
 Defined.
-
+*)
 End category_products.
 
+(*
 (** Redeclare section notations to be available globally. *)
 Local Notation "C × D" := (prod_category C D)
   (at level 75, right associativity) : cat.
+ *)
+
 
 (** * Miscellaneous lemmas *)
 Section Miscellaneous.
@@ -212,14 +240,12 @@ Section Miscellaneous.
 
 Currently named by analogy with monad binding operation (e.g. Haskell’s [ >>= ]), to which it has a curious formal similarity. *)
 (* TODO: consider name! *)
-(* TODO: try using this in more of the algebraic displayed categories proofs. Frequent use of [transport_f_f] is a sure sign that this would be helpful. *)
-Lemma transportf_bind {X : UU} {P : X → UU}
-  {x x' x'' : X} (e : x' = x) (e' : x = x'')
-  y y'
-: y = transportf P e y' -> transportf _ e' y = transportf _ (e @ e') y'.
-Proof.
-  intro H; destruct e, e'; exact H.
-Defined.
+  (* TODO: try using this in more of the algebraic displayed categories proofs. Frequent use of [transport_f_f] is a sure sign that this would be helpful. *)
+
+Search (transportf _ ?e' ?y = transportf _ (?e @ ?e') ?y').
+Locate transport_f_f.
+
+(* Move to MF/PartA *)
 
 (** Composition of dependent paths.
 
@@ -231,47 +257,13 @@ NOTE 2: unfortunately there’s a variance issue: this is currently backwards ov
 - we want an arbitrary [transportf] on the RHS of the input equalities, so that this lemma can accept whatever the “computation” produces.
 
 If [transportf] were derived from [transportb], instead of vice versa, then we could use [transportb] on the RHS and this would look much nicer… *)
-Lemma pathscomp0_dep {X : UU} {P : X → UU}
-  {x x' x'' : X} {e : x' = x} {e' : x'' = x'}
-  {y} {y'} {y''}
-: (y = transportf P e y') -> (y' = transportf _ e' y'')
-  -> y = transportf _ (e' @ e) y''.
-Proof.
-  intros ee ee'.
-  etrans. apply ee.
-  apply transportf_bind, ee'.
-Defined.
-
-Tactic Notation "etrans_dep" := eapply @pathscomp0_dep.
 
 
 (** A couple of lemmas for giving weak equivalences between subtypes of types *)
 
 (* Morally the same as [weq_subtypes] in library, but it’s not clear to me how to easily get this using that. *)
-Lemma weq_subtypes'
-    {X Y : UU} (w : X ≃ Y)
-    {S : X -> UU} {T : Y -> UU}
-    (HS : isPredicate S)
-    (HT : isPredicate T)
-    (HST : ∏ x : X, S x <-> T (w x))
-  : (∑ x, S x) ≃ (∑ y, T y).
-Proof.
-  apply (weqbandf w).
-  intros. apply weqiff.
-  - apply HST.
-  - apply HS.
-  - apply HT.
-Defined.
 
-(* Specialisation of [weq_subtypes'] *)
-Lemma weq_subtypes_iff
-    {X : UU} {S T : X -> UU}
-    (HS : isPredicate S)
-    (HT : isPredicate T)
-    (HST : ∏ x, S x <-> T x)
-  : (∑ x, S x) ≃ (∑ x, T x).
-Proof.
-  apply (weq_subtypes' (idweq X)); assumption.
-Defined.
+
+(* Move to MF/PartA *)
 
 End Miscellaneous.
