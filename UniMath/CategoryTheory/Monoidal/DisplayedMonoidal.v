@@ -26,6 +26,14 @@ Local Open Scope cat.
 Local Open Scope mor_disp_scope.
 Local Notation "C ⊠ C'" := (category_binproduct C C').
 
+(** From [D] over [C] and [D'] over [C'], define [D ⊠⊠ D'] over [C ⊠ C']
+
+    Working in [D ⊠⊠ D'] requires some annoying transport lemmas,
+    also proved here.
+
+   TODO: move upstream
+*)
+
 Section DispCartProdOfCats.
 
   Context {C C' : category}
@@ -150,6 +158,11 @@ End DispCartProdOfCats.
 
 Notation "D ⊠⊠ D'" := (disp_binprod D D') (at level 60).
 
+(** Isomorphism between [total (D ⊠⊠ D')] and [total D × total D']
+
+    We should construct isomorphisms in both directions, for better computation:
+    [catiso_reord] is possibly in the less useful direction
+*)
 
 Section TotalDispProd.
 
@@ -252,6 +265,12 @@ Proof.
 Qed.
 
 
+
+(** Definition of the binary product displayed functor
+     (D ⊠⊠ D') --> (E ⊠⊠ E')
+    over F ⊠ F'
+*)
+
 Section DispCartProdOfFunctors.
 
   Context {A A' C C' : category}
@@ -310,6 +329,10 @@ Section DispCartProdOfFunctors.
     :=  disp_pair_functor_data ,, disp_pair_functor_axioms.
 
 End DispCartProdOfFunctors.
+
+(** Associating displayed functor
+    (DA ⊠⊠ (DB ⊠⊠ DC)) --> ((DA ⊠⊠ DB) ⊠⊠ DC)
+*)
 
 Section DispAssocFunctors.
 
@@ -484,7 +507,7 @@ Section DispAssocFunctors.
 
 End DispAssocFunctors.
 
-
+(** TODO: define this type directly *)
 
 Lemma transportf_fst_arg_type
         {A B C : category}
@@ -813,11 +836,11 @@ Section section_tensor.
   (* Sanity check looks ok, but is cumbersome to prove *)
 
   Local Definition sanity_check (α : monoidal_tensor_section)
-    : nat_iso
+    : nat_z_iso
         (functor_composite T (section_functor S))
         (functor_composite section_functor_pair (total_tensor T TT)).
   Proof.
-    use make_nat_iso.
+    use make_nat_z_iso.
     - use make_nat_trans.
       + intro a.
         cbn.
@@ -956,7 +979,8 @@ Section section_tensor.
           apply two_arg_paths.
           -- apply C.
           -- apply idpath.
-    - intros a b f. cbn.
+    - unfold is_nat_z_iso. intros a.
+      cbn.
       admit.
   Abort.
 
