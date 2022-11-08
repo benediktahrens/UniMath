@@ -8,6 +8,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
 Require Import UniMath.CategoryTheory.DisplayedCats.Constructions.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
+Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 
 Local Open Scope mor_disp_scope.
 
@@ -23,13 +26,54 @@ Section DisplayedToTotalEsoFF.
              (FF_ff : disp_functor_ff FF)
     : fully_faithful (total_functor FF).
   Proof.
-  Admitted.
+    intros a b.
+    cbn.
+    set (TF := F_ff (pr1 a) (pr1 b)).
+    set (TFF := FF_ff (pr1 a) (pr1 b) (pr2 a) (pr2 b)).
+    set (TF' := make_weq _ TF).
+    set (H := @weqtotal2  _ _ _ _ TF' (λ f, make_weq _ (TFF f))).
+    apply (isweqhomot H).
+    - intro.
+      apply idpath.
+    - apply H.
+  Defined.
 
   Definition disp_functor_eso_to_total_eso
              (F_eso : essentially_surjective F)
              (FF_eso : disp_functor_disp_ess_split_surj FF)
+             (I : iso_cleaving D2)
     : essentially_surjective (total_functor FF).
   Proof.
+    intros [b bb].
+    set (F_eso_bb := F_eso b).
+    unfold disp_functor_disp_ess_split_surj in FF_eso.
+    apply (squash_to_prop F_eso_bb).
+    - apply propproperty.
+    - clear F_eso_bb F_eso.
+      intros [a i].
+      apply hinhpr.
+      set (XR := FF_eso a).
+      clearbody XR; clear FF_eso.
+      set (II := I _ _ i bb).
+      set (cc := pr1 II).
+      set (ii := pr2 II).
+      cbn in ii.
+      set (XR2 := XR cc).
+      set (aa := pr1 XR2).
+      set (jj := pr2 XR2).
+      use tpair.
+      + use tpair.
+        * exact a.
+        * cbn.
+          apply aa.
+      + cbn.
+        cbn in jj.
+        apply total_z_iso_equiv_map; cbn.
+        use tpair.
+        * apply i.
+        * cbn.
+          set (XRr := z_iso_disp_comp jj ii).
+
   Admitted.
 
 End DisplayedToTotalEsoFF.
