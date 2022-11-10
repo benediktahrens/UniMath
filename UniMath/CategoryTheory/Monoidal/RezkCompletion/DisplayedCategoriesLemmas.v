@@ -123,13 +123,29 @@ Section ProductOfDisplayedFunctorsOverFixedBase.
              (FF'_ff : disp_functor_ff FF')
     : disp_functor_ff disp_prod_functor_over_fixed_base.
   Proof.
-  Admitted.
+    unfold disp_functor_ff in *.
+    intros a b [x x'] [y y'] f.
+    use isweqhomot.
+    - apply (weqdirprodf (make_weq _ (FF_ff _ _ _ _ _ )) (make_weq _ (FF'_ff _ _ _ _ _ ))).
+    - intro. apply idpath.
+    - apply weqproperty.
+  Defined.
 
   Definition disp_prod_functor_over_fixed_base_eso
              (FF_ff : disp_functor_disp_ess_split_surj FF)
              (FF'_ff : disp_functor_disp_ess_split_surj FF')
     : disp_functor_disp_ess_split_surj disp_prod_functor_over_fixed_base.
   Proof.
-  Admitted.
+    unfold disp_functor_disp_ess_split_surj in *.
+    intros a [x x'].
+    specialize (FF_ff a x).
+    induction FF_ff as [y i].
+    specialize (FF'_ff a x').
+    induction FF'_ff as [y' i'].
+    exists (y,,y').
+    cbn.
+    apply z_iso_disp_prod2.
+    exact (make_dirprod i i').
+  Defined.
 
 End ProductOfDisplayedFunctorsOverFixedBase.
