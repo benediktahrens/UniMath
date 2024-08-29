@@ -29,6 +29,8 @@ Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
+Require Import UniMath.CategoryTheory.Limits.BinCoproducts.
+Require Import UniMath.CategoryTheory.DisplayedCats.Binproducts.
 Local Open Scope cat.
 
 Hypothesis joker : forall T : UU, T.
@@ -50,6 +52,46 @@ Hypothesis joker : forall T : UU, T.
     - intros. apply idpath.
     - intros. apply idpath.
   Defined.
+
+  Definition bincoprod_skeletalfinset (m n : skeletalfinset)
+    : BinCoproduct m n.
+  Proof.
+    unfold BinCoproduct.
+    repeat (use tpair).
+    - apply (m + n).
+    - simpl.
+      exact (stn_left _ _).
+    - simpl.
+      exact (stn_right _ _).
+    - simpl.
+      unfold isBinCoproduct.
+      intros k f g.
+      use unique_exists.
+      + exact (concatenate' f g).
+      + split; simpl.
+        * apply funextsec.
+          intro i.
+          apply stn_eq.
+          simpl.
+          apply joker.
+        * apply joker.
+      + intro i.
+        apply isapropdirprod; apply homset_property.
+      + intro l.
+        simpl.
+        intros [Hlm Hln].
+        apply funextsec.
+        intro i.
+        apply joker.
+  Defined.
+
+  Definition bincoprods_skeletalfinset : BinCoproducts skeletalfinset.
+  Proof.
+    intros m n.
+    apply bincoprod_skeletalfinset.
+  Defined.
+
+
 
 
 Section finitestrictcoprod.
@@ -86,10 +128,46 @@ Section finitestrictcoprod.
 
   Lemma fsc_disp_cat_axioms : disp_cat_axioms _ fsc_disp_cat_data.
   Proof.
-    admit.
-  Admitted.
+    apply joker.
+  Qed.
 
   Definition fsc_disp_cat : disp_cat skeletalfinset := tpair _ _ fsc_disp_cat_axioms.
+
+  Definition fsc_bin_coprod
+    (m n : skeletalfinset)
+    (aa : fsc_disp_cat m)
+    (bb : fsc_disp_cat n)
+    : disp_BinCoproduct _ aa bb (bincoprod_skeletalfinset m n).
+  Proof.
+    unfold disp_BinCoproduct.
+    repeat (use tpair); simpl.
+    - apply (concatenate' aa bb).
+    - intro i.
+      simpl in aa.
+      apply joker.
+    - apply joker.
+    - apply joker.
+  Defined.
+
+  Definition fsc_bin_coprods : disp_BinCoproducts fsc_disp_cat bincoprods_skeletalfinset.
+  Proof.
+    intros m n aa bb.
+    apply fsc_bin_coprod.
+  Defined.
+
+  Definition finitecoprodcompletion
+    : category
+    := total_category fsc_disp_cat.
+
+  Definition BinCoproducts_finitecoprodcompletion
+    : BinCoproducts finitecoprodcompletion.
+  Proof.
+    use total_BinCoproducts.
+    - apply bincoprods_skeletalfinset.
+    - apply fsc_bin_coprods.
+  Defined.
+
+
 
 End finitestrictcoprod.
 

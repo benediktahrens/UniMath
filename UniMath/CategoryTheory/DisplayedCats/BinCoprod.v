@@ -171,18 +171,43 @@ Section foo.
       unfold disp_isBinCoproduct in T.
       specialize (T c cc f g ff gg).
       Search "center".
-     (H : ∃! x, P x) -> ∏ y, P y -> y = center H
+      Search (∃! _ , _).
 
-      Search (∃! _ , _  -> _ = _).
 
-      k = BinCoproductArrow CC f g.
-Proof.
-  intros H1 H2.
-  set (H := tpair (λ h, dirprod _ _ ) k (make_dirprod H1 H2)).
-  set (H' := (pr2 (isBinCoproduct_BinCoproduct CC _ f g)) H).
-  apply (base_paths _ _ H').
-Qed.
-
+      apply transportb_transpose_right.
+      apply path_to_ctr.
+      split.
+      - apply transportb_transpose_right.
+        set (Hkk1':= transportb_transpose_left Hkk1).
+        rewrite <- Hkk1'.
+        etrans.
+        { apply maponpaths.
+          Search ( _ ;; transportf _ _ _ = _ ).
+          apply mor_disp_transportf_prewhisker. }
+        etrans.
+        {
+          Search (transportf _ _ (transportf _ _ _ ) = _).
+          apply transport_f_f. }
+        unfold transportb.
+        Search (transportf _ _ _ = transportf _ _ _ ).
+        apply transportf_paths.
+        apply homset_property.
+      - apply transportb_transpose_right.
+        set (Hkk2':= transportb_transpose_left Hkk2).
+        rewrite <- Hkk2'.
+        etrans.
+        { apply maponpaths.
+          Search ( _ ;; transportf _ _ _ = _ ).
+          apply mor_disp_transportf_prewhisker. }
+        etrans.
+        {
+          Search (transportf _ _ (transportf _ _ _ ) = _).
+          apply transport_f_f. }
+        unfold transportb.
+        Search (transportf _ _ _ = transportf _ _ _ ).
+        apply transportf_paths.
+        apply homset_property.
+      Qed.
 
 
   Definition total_BinCoproduct
@@ -237,12 +262,15 @@ Qed.
              apply (base_paths _ _ H1).
           -- apply (base_paths _ _ H2).
         * simpl.
+          destruct kkk as [k kk].
+          simpl.
+          apply disp_BinCoproductArrowUnique.
+          -- Search ( _ = _ -> transportf _ _ (pr2 _) = pr2 _ ).
+             apply transportb_transpose_right.
+             apply (fiber_paths H1).
+          --
+             apply transportb_transpose_right.
+             apply (fiber_paths H2).
+  Defined.
 
-
-           set (T := disp_BinCoproductIn1Commutes H _ _ HH (pr2 f) (pr2 g)).
-             Search (transportf _ _ _ = _ -> _ = transportb _ _ _ ).
-             Search "transpose".
-             apply transportf_transpose_left.
-             apply T.
-             apply joker.
   End foo.
