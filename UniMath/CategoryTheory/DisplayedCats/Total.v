@@ -93,6 +93,10 @@ Section Total_Category.
   Definition total_category {C : category} (D : disp_cat C) : category :=
     (total_precategory D,, total_category_has_homsets D).
 
+  Definition total_ob {C : category} {D : disp_cat C} (a : C) (aa : D a)
+    : total_category D
+    := (a,,aa).
+
   Definition pr1_category_data {C : category} (D : disp_cat C) :
     functor_data (total_category D) C.
   Proof.
